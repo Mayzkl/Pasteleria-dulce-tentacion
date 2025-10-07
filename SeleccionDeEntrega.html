@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <title>Seleccion entrega</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="estilos.css" rel="stylesheet">
 </head>
-<body class="bg-light">
+<body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">🍰 Dulce Tentación</a>
+            <a class="navbar-brand fw-bold" href="#">Dulce Tentación</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -19,7 +20,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Catálogo</a>
+                        <a class="nav-link" href="catalogo.html">Catálogo</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="registro.html">Registro</a>
@@ -28,7 +29,7 @@
                         <a class="nav-link" href="login.html">Iniciar sesión</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">🛒 Carrito</a>
+                        <a class="nav-link" href="carrito_compra.html">Carrito</a>
                     </li>
                 </ul>
             </div>
@@ -36,46 +37,84 @@
     </nav>
 
     <div class="container my-5">
-        <h2 class="text-center mb-4">Selecciona fecha y hora de entrega</h2>
+        <h2 class="text-center mb-4 fw-bold">Selecciona fecha y franja horaria de entrega</h2>
 
         <div class="row justify-content-center">
         <!-- Calendario -->
-            <div class="col-md-4 text-center">
-                <div class="border bg-white p-3">
-                    <p><strong>Octubre 2025</strong></p>
-                    <table class="table table-bordered text-center">
-                        <thead>
+            <div class="col-md-4 text-center mb-4 mb-md-0">
+                <div class="border bg-white p-3 shadow-sm rounded">
+                    <h5 class="fw-bold">Octubre 2025</h5>
+                    <table class="table table-bordered text-center align-middle mb-2">
+                        <thead class="table-light">
                             <tr>
-                            <th>Lu</th><th>Ma</th><th>Mi</th><th>Ju</th><th>Vi</th><th>Sa</th><th>Do</th>
+                                <th>Lu</th><th>Ma</th><th>Mi</th><th>Ju</th><th>Vi</th><th>Sa</th><th>Do</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr><td>20</td><td>21</td><td>22</td><td>23</td><td class="bg-primary text-white">24</td><td>25</td><td>26</td></tr>
+                            <tr><td>20</td><td>21</td><td>22</td><td>23</td><td class="bg-primary text-white fw-bold">24</td><td>25</td><td>26</td></tr>
                             <tr><td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td></tr>
                         </tbody>
-                    </table>
-                    <p class="text-muted small">Tiempo mínimo de preparación: 24 hrs</p>
-                </div>
+                </table>
+                <p class="text-muted small mb-0">Tiempo mínimo de preparación: 24 hrs</p>
+                <p class="text-muted small">Fecha seleccionada: <span id="fechaSeleccionada" class="fw-semibold text-primary">24/10/2025</span></p>
             </div>
+        </div>
 
         <!-- Horarios -->
             <div class="col-md-4">
-                <h5 class="text-center mb-3">Horarios de entrega</h5>
+                <h5 class="text-center mb-3 fw-bold">Franjas horarias disponibles</h5>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-danger">09:00 - 9:30 AM</button>
-                    <button class="btn btn-success">10:00 - 10:30 AM</button>
-                    <button class="btn btn-success">12:00 - 12:30 AM</button>
-                    <button class="btn btn-success">15:00 - 15:30 PM</button>
+                    <button class="btn btn-outline-primary hora-btn" data-hora="09:00 - 09:30">09:00 - 09:30</button>
+                    <button class="btn btn-outline-primary hora-btn" data-hora="10:00 - 10:30">10:00 - 10:30</button>
+                    <button class="btn btn-outline-primary hora-btn" data-hora="12:00 - 12:30">12:00 - 12:30</button>
+                    <button class="btn btn-outline-primary hora-btn" data-hora="15:00 - 15:30">15:00 - 15:30</button>
+                </div>
+                    <p class="text-muted small text-center mt-3" id="horaSeleccionadaTexto">Selecciona una franja horaria.</p>
                 </div>
             </div>
-        </div>
 
         <!-- Botón continuar -->
         <div class="text-center mt-4">
-            <button class="btn btn-primary btn-lg">Continuar</button>
+            <button id="btnContinuar" class="btn btn-primary btn-lg" disabled>Continuar</button>
         </div>
     </div>
 
+    <footer class="text-center py-3 bg-dark text-light mt-auto">
+        <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+            const botonesHora = document.querySelectorAll('.hora-btn');
+            const horaTexto = document.getElementById('horaSeleccionadaTexto');
+            const btnContinuar = document.getElementById('btnContinuar');
+
+            let horaSeleccionada = null;
+
+            botonesHora.forEach(boton => {
+                boton.addEventListener('click', () => {
+                // quitar selección previa
+                botonesHora.forEach(b => b.classList.remove('active', 'btn-primary'));
+                botonesHora.forEach(b => b.classList.add('btn-outline-primary'));
+                
+                // marcar seleccionada
+                boton.classList.remove('btn-outline-primary');
+                boton.classList.add('btn-primary', 'active');
+
+                horaSeleccionada = boton.getAttribute('data-hora');
+                horaTexto.textContent = `Franja seleccionada: ${horaSeleccionada}`;
+                horaTexto.classList.remove('text-muted');
+                horaTexto.classList.add('fw-semibold', 'text-primary');
+
+                btnContinuar.disabled = false;
+            });
+        });
+
+        btnContinuar.addEventListener('click', () => {
+            alert(`Has seleccionado el ${document.getElementById('fechaSeleccionada').textContent} a las ${horaSeleccionada}.`);
+            window.location.href = "confirmacion.html";
+        });
+    </script>
 
 
 </body>

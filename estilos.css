@@ -1,0 +1,56 @@
+/* Estilo General */
+body {
+    background-color: #FFF6F2; 
+    color: #4B2E2B; 
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #E8A0A0 !important;
+}
+.navbar-brand, .nav-link {
+    color: #4B2E2B !important;
+    font-weight: 500;
+}
+.nav-link:hover {
+    color: #fff !important;
+}
+
+/* Botones */
+.btn-primary {
+    background-color: #D87575;
+    border-color: #D87575;
+}
+.btn-primary:hover {
+    background-color: #b95f5f;
+    border-color: #b95f5f;
+}
+
+/* Card y Contenedores */
+.card, .border {
+    border-color: #F1B6A8 !important;
+    background-color: #fff !important;
+}
+
+/* Footer */
+footer {
+    background-color: #E8A0A0;
+    color: #4B2E2B;
+    font-weight: 500;
+}
+
+/* Inputs */ 
+.form-control:focus, .form-select:focus {
+    border-color: #D87575;
+    box-shadow: 0 0 0 0.2rem rgba(216, 117, 117, 0.25);
+}
+
+/* Modales */
+.modal-header {
+    background-color: #D87575 !important;
+}
+.modal-content {
+    border: 2px solid #F1B6A8;
+    border-radius: 10px;
+}

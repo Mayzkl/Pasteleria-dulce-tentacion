@@ -4,13 +4,14 @@
         <meta charset="UTF-8">
         <title>Administracion de productos</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="estilos.css" rel="stylesheet">
     </head>
-<body>
+<body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">🍰 Dulce Tentación</a>
+            <a class="navbar-brand fw-bold" href="#">Dulce Tentación</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -19,7 +20,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Catálogo</a>
+                        <a class="nav-link" href="catalogo.html">Catálogo</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="registro.html">Registro</a>
@@ -28,14 +29,15 @@
                         <a class="nav-link" href="login.html">Iniciar sesión</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">🛒 Carrito</a>
+                        <a class="nav-link" href="carrito_compra.html">Carrito</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
-<div class="container my-4">
-        <h2 class="mb-4">Catálogo de Tortas</h2>
+    
+    <div class="container my-5">
+        <h2 class="mb-4 fw-bold text-center">Catálogo de Tortas</h2>
 
         <!-- Filtros -->
         <div class="row mb-3 align-items-center">
@@ -45,11 +47,14 @@
             <div class="col-md-3">
                 <select class="form-select">
                     <option>Categoría</option>
+                    <option>Tortas clásicas</option>
+                    <option>Tortas personalizadas</option>
+                    <option>Repostería especial</option>
                 </select>
             </div>
             <div class="col-md-5 text-end">
-                <button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#productoModal">
-                Cambiar o agregar producto
+                <button class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#productoModal">
+                    Cambiar o agregar producto
                 </button>
             </div>
         </div>
@@ -57,62 +62,130 @@
         <!-- Grid de productos -->
         <div class="row g-3">
             <div class="col-md-3">
-                <div class="border p-3 text-center">
+                <div class="border p-3 text-center bg-white shadow-sm rounded">
                     <p><strong>Torta Selva Negra</strong></p>
                     <p>$19.990</p>
                     <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="border p-3 text-center">
+                <div class="border p-3 text-center bg-white shadow-sm rounded">
                     <p><strong>Torta Tres Leches</strong></p>
                     <p>$12.990</p>
                     <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="border p-3 text-center">
+                <div class="border p-3 text-center bg-white shadow-sm rounded">
                     <p><strong>Torta Frambuesa</strong></p>
                     <p>$21.990</p>
                     <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="border p-3 text-center">
-                    <p><strong>Torta Mil hoja</strong></p>
+                <div class="border p-3 text-center bg-white shadow-sm rounded">
+                    <p><strong>Torta Mil Hojas</strong></p>
                     <p>$14.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border p-3 text-center">
-                    <p><strong>Torta Chocolate</strong></p>
-                    <p>$11.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border p-3 text-center">
-                    <p><strong>Torta Lucuma manjar</strong></p>
-                    <p>$14.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border p-3 text-center">
-                    <p><strong>Torta Frambuesa</strong></p>
-                    <p>$21.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border p-3 text-center">
-                    <p><strong>NUEVA TORTA</strong></p>
-                    <p>$ PRECIO TORTA</p>
                     <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal de agregar/cambiar producto -->
+    <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="productoModalLabel">Agregar o modificar producto</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <form id="formProducto" novalidate>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nombre del producto</label>
+                                <input type="text" class="form-control" id="nombre" placeholder="Ej: Torta de Chocolate" required>
+                                <div class="invalid-feedback">Ingresa el nombre del producto.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Precio ($)</label>
+                                <input type="number" class="form-control" id="precio" placeholder="Ej: 15990" required>
+                                <div class="invalid-feedback">Ingresa un precio válido.</div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <label class="form-label fw-semibold">Descripción</label>
+                                <textarea class="form-control" id="descripcion" rows="3" placeholder="Describe el producto..." required></textarea>
+                                <div class="invalid-feedback">Ingresa una descripción.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Imagen del producto</label>
+                                <input type="file" class="form-control" id="imagen" accept="image/*" required>
+                                <div class="invalid-feedback">Selecciona una imagen.</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Categoría</label>
+                                    <select class="form-select" id="categoria" required>
+                                        <option value="">Seleccionar...</option>
+                                        <option>Tortas clásicas</option>
+                                        <option>Personalizadas</option>
+                                        <option>Especiales</option>
+                                    </select>
+                                    <div class="invalid-feedback">Selecciona una categoría.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-info text-white">Guardar cambios</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de confirmación -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content text-center">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title" id="confirmModalLabel">Cambios guardados</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>El producto fue agregado o modificado correctamente.</p>
+                        <button class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <!-- Footer -->
+    <footer class="text-center py-3 bg-dark text-light mt-auto">
+        <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const formProducto = document.getElementById('formProducto');
+        const modalConfirm = new bootstrap.Modal(document.getElementById('confirmModal'));
+
+        formProducto.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            if (!formProducto.checkValidity()) {
+                e.stopPropagation();
+                formProducto.classList.add('was-validated');
+            } else {
+                modalConfirm.show();
+                formProducto.reset();
+                formProducto.classList.remove('was-validated');
+            }
+        });
+    </script>
 </body>
 </html>
