@@ -1,5 +1,3 @@
-// Es como realizar un import, aquí añadimos o incorporamos la dependencia
-// de mongoose al archivo o modelo implementado.
 const { Schema, model } = require("mongoose");
 
 const ArticuloSchema = Schema({

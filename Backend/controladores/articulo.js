@@ -6,10 +6,8 @@ const Articulo = require("../modelos/Articulo");
 
 const crear = (req, res) => {
 
-    // Obtener parametros por post a guardar
     let parametros = req.body;
 
-    // Validar datos
     try {
         validarArticulo(parametros);
 
@@ -20,16 +18,10 @@ const crear = (req, res) => {
         });
     }
 
-    // Crear el objeto a guardar
     const articulo = new Articulo(parametros);
 
-    // Asignar valores a objeto basado en el modelo (manual o automatico)
-    //articulo.titulo = parametros.titulo;
-
-    // Guardar el articulo en la base de datos
     articulo.save();
 
-    // Devolver resultado
     return res.status(200).json({
         status: "éxito",
         articulo: parametros,
@@ -70,9 +62,7 @@ const listar = async (req, res) => {
 }
 
 const listar_uno = async (req, res) => {
-    // Recoger un id por la url
     let id = req.params.id;
-    // Validar datos
     try {
         validarIdArticulo(id);
 
@@ -84,7 +74,6 @@ const listar_uno = async (req, res) => {
     }
 
     try {
-        // Buscar el articulo
         let resultado = await Articulo.findById(id);
         if (!resultado) {
             return res.status(404).json({
@@ -106,7 +95,6 @@ const listar_uno = async (req, res) => {
 }
 
 const borrar = async (req, res) => {
-    // Recoger un id por la url
 
     try {
         let articuloId = req.params.id;
@@ -134,16 +122,12 @@ const borrar = async (req, res) => {
 }
 
 const editar = async (req, res) => {
-    // Recorger id articulo a editar
     let articuloId = req.params.id;
 
-    // Recoger datos del body
     let parametros = req.body;
 
-    // Validar datos
     try {
         validarArticulo(parametros);
-        // Buscar y actualizar articulo
         let resultado = await Articulo.findOneAndUpdate({ _id: articuloId }, req.body, { new: true });
 
         if (!resultado) {
@@ -171,7 +155,6 @@ const editar = async (req, res) => {
 const subir = async (req, res) => {
 
     try {
-        // Recoger el fichero de imagen subido
         if (!req.file && !req.files) {
             return res.status(404).json({
                 status: "error",
@@ -179,18 +162,13 @@ const subir = async (req, res) => {
             });
         }
 
-        // Nombre del archivo
         let archivo = req.file.originalname;
 
-        // Extension del archivo
-        let archivo_split = archivo.split("\."); //nombredearchivo.jpg
+        let archivo_split = archivo.split("\."); 
 
         let extension = archivo_split[1];
-        // Comprobar extension correcta
         if (extension != "png" && extension != "jpg" &&
             extension != "jpeg" && extension != "gif") {
-
-            // Borrar archivo y dar respuesta
             fs.unlink(req.file.path, (error) => {
                 return res.status(400).json({
                     status: "error",
@@ -198,20 +176,14 @@ const subir = async (req, res) => {
                 });
             })
         } else {
-
-            // Recorger id articulo a editar
             let articuloId = req.params.id;
-
-            // Buscar y actualizar articulo
             let resultado = await Articulo.findOneAndUpdate({ _id: articuloId }, { imagen: req.file.filename }, { new: true });
-
             if (!resultado) {
                 return res.status(500).json({
                     status: "error",
                     mensaje: "Error al actualizar"
                 });
             } else {
-                // Devolver respuesta
                 return res.status(200).json({
                     status: "éxito",
                     articulo: resultado,
@@ -249,10 +221,7 @@ const imagen = (req, res) => {
 }
 
 const buscador = async (req, res) => {
-    // Sacar el string de busqueda
-    let busqueda = req.params.busqueda;
-
-    // Find OR 
+    let busqueda = req.params.busqueda; 
     let consulta = Articulo.find({
         "$or": [
             { "titulo": { "$regex": busqueda, "$options": "i" } },
@@ -279,6 +248,68 @@ const buscador = async (req, res) => {
 
 }
 
+const editarArticulo = async (req, res) => {
+    try {
+        const articuloId = req.params.id;
+        const nuevosDatos = req.body;
+
+        const articuloExistente = await Articulo.findById(articuloId);
+        if (!articuloExistente) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se encontró el artículo a editar"
+            });
+        }
+
+        const articuloActualizado = await Articulo.findByIdAndUpdate(
+            articuloId,
+            nuevosDatos,
+            { new: true } 
+        );
+
+        return res.status(200).json({
+            status: "éxito",
+            mensaje: "Artículo actualizado correctamente",
+            articulo: articuloActualizado
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            status: "error",
+            mensaje: "Error al actualizar el artículo",
+            error: error.message
+        });
+    }
+};
+
+const eliminarArticulo = async (req, res) => {
+    try {
+        const articuloId = req.params.id;
+
+        const articuloEliminado = await Articulo.findByIdAndDelete(articuloId);
+
+        if (!articuloEliminado) {
+            return res.status(404).json({
+                status: "error",
+                mensaje: "No se encontró el artículo a eliminar"
+            });
+        }
+
+        return res.status(200).json({
+            status: "éxito",
+            mensaje: "Artículo eliminado correctamente",
+            articulo: articuloEliminado
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al eliminar el artículo",
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     crear,
     listar,
@@ -287,5 +318,7 @@ module.exports = {
     editar,
     subir,
     imagen,
-    buscador
+    buscador,
+    editarArticulo,
+    eliminarArticulo
 }
