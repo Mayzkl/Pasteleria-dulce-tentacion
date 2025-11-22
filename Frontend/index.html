@@ -22,7 +22,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Catálogo</a>
+                        <a class="nav-link" href="catalogo.html">Catálogo</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="registro.html">Registro</a>
@@ -31,7 +31,7 @@
                         <a class="nav-link" href="login.html">Iniciar sesión</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#"> Carrito</a>
+                        <a class="nav-link" href="carrito_compra.html"> Carrito</a>
                     </li>
                 </ul>
             </div>
@@ -39,63 +39,74 @@
     </nav>
 
     <!-- Hero principal -->
-<section class="hero text-center">
-    <div class="container">
-        <h1 class="display-5 mb-3">Bienvenido a Dulce Tentación</h1>
-        <p class="mb-4">Tortas personalizadas y pasteles hechos con amor</p>
+    <section class="hero text-center">
+        <div class="container">
+            <h1 class="display-5 mb-3">Bienvenido a Pasteleria Dulce Tentación</h1>
+            <p class="mb-4">Tortas personalizadas y pasteles hechos con amor</p>
 
-        <!-- Botones hero -->
-        <button class="btn btn-pastel btn-lg me-3"
-                onclick="window.location.href='catalogo.html'">
-                Ver Catálogo
-        </button>
+            <!-- Botones hero -->
+            <button class="btn btn-pastel btn-lg me-3"
+                    onclick="window.location.href='catalogo.html'">
+                    Ver Catálogo
+            </button>
 
-        <button class="btn btn-secondary btn-lg me-3"
-                onclick="window.location.href='destacados.html'">
-            Ver destacados
-        </button>
+            <button class="btn btn-secondary btn-lg me-3"
+                    onclick="window.location.href='destacados.html'">
+                Ver destacados
+            </button>
 
-        <button class="btn btn-outline-dark btn-lg"
-                onclick="window.location.href='login.html'">
-            Iniciar Sesión
-        </button>
-    </div>
-</section>
+            <button class="btn btn-outline-dark btn-lg"
+                    onclick="window.location.href='login.html'">
+                Iniciar Sesión
+            </button>
+        </div>
+    </section>
 
-    <!-- Sección de destacados -->
+<!-- Sección de favoritos -->
         <section class="container my-5">
             <h2 class="text-center mb-4 fw-bold">Nuestros favoritos</h2>
             <div class="row text-center g-4">
+                <!-- Torta Selva Negra -->
                 <div class="col-md-4">
                     <div class="card shadow-sm">
-                        <img src="https://www.paulinacocina.net/wp-content/uploads/2022/04/selva-negra-receta-1.jpg.webp"
-                        class="card-img-top" alt="Torta Selva Negra">
+                        <img src="https://www.paulinacocina.net/wp-content/uploads/2022/04/selva-negra-receta-1.jpg.webp" class="card-img-top" alt="Torta Selva Negra">
                         <div class="card-body">
                             <h5 class="card-title">Torta Selva Negra</h5>
                             <p class="card-text">Clásica y esponjosa, rellena de cerezas y crema batida.</p>
-                            <button class="btn btn-primary" onclick="window.location.href='personalizacion.html'">Personalizar</button>
+                            <button class="btn btn-primary"
+                                    onclick="window.location.href='personalizacion.html?id=selva'">
+                                Personalizar
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Torta Tres Leches -->
                 <div class="col-md-4">
                     <div class="card shadow-sm">
-                        <img src="https://www.pasteleriaelparron.cl/wp-content/uploads/2023/08/Tres-Leches-2024.png"
-                        class="card-img-top" alt="Torta Tres Leches">
+                        <img src="https://www.pasteleriaelparron.cl/wp-content/uploads/2023/08/Tres-Leches-2024.png"class="card-img-top" alt="Torta Tres Leches">
                         <div class="card-body">
                             <h5 class="card-title">Torta Tres Leches</h5>
                             <p class="card-text">Suave, húmeda y perfecta para cualquier celebración.</p>
-                            <button class="btn btn-primary" onclick="window.location.href='personalizacion.html'">Personalizar</button>
+                            <button class="btn btn-primary"
+                                    onclick="window.location.href='personalizacion.html?id=tresleches'">
+                                Personalizar
+                            </button>
                         </div>
                     </div>
                 </div>
+
+                <!-- Torta Frambuesa -->
                 <div class="col-md-4">
                     <div class="card shadow-sm">
-                        <img src="https://velvetbakery.cl/cdn/shop/products/MerengueFrambuesaCSh.jpg?v=1666199845"
-                        class="card-img-top" alt="Torta Frambuesa">
+                        <img src="https://velvetbakery.cl/cdn/shop/products/MerengueFrambuesaCSh.jpg?v=1666199845"class="card-img-top" alt="Torta Frambuesa">
                         <div class="card-body">
                             <h5 class="card-title">Torta Frambuesa</h5>
                             <p class="card-text">Relleno de manjar y frambuesas frescas, nuestra favorita.</p>
-                            <button class="btn btn-primary" onclick="window.location.href='personalizacion.html'">Personalizar</button>
+                            <button class="btn btn-primary"
+                                    onclick="window.location.href='personalizacion.html?id=frambuesa'">
+                                Personalizar
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -111,11 +122,11 @@
             </div>
         </section>
 
-    <!-- Footer -->
-    <footer class="text-center py-3 bg-dark text-light mt-auto">
-        <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
-    </footer>
+        <!-- Footer -->
+        <footer class="text-center py-3 bg-dark text-light mt-auto">
+            <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
+        </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

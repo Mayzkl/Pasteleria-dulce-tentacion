@@ -11,7 +11,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">Dulce Tentación</a>
+            <a class="navbar-brand fw-bold" href="index.html">Dulce Tentación</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -29,7 +29,7 @@
                         <a class="nav-link" href="login.html">Iniciar sesión</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Carrito</a>
+                        <a class="nav-link" href="carrito_compra.html">Carrito</a>
                     </li>
                 </ul>
             </div>
@@ -43,18 +43,18 @@
             <!-- Imagen del producto -->
             <div class="col-md-4 text-center mb-4 mb-md-0">
                 <div class="border bg-white p-3 shadow-sm rounded">
-                    <img src="https://velvetbakery.cl/cdn/shop/products/MerengueFrambuesaCSh.jpg?v=1666199845"
+                    <img id="imgProducto" src="https://velvetbakery.cl/cdn/shop/products/MerengueFrambuesaCSh.jpg?v=1666199845"
                     class="img-fluid rounded" alt="Torta Frambuesa">
             </div>
         </div>
 
             <!-- Opciones de personalización -->
         <div class="col-md-6">
-            <h4 class="mb-3">Torta Frambuesa</h4>
+            <h4 id="tituloProducto" class="mb-3">Torta Frambuesa</h4>
 
             <div class="mb-3">
                 <label class="form-label">1) Selecciona tamaño</label>
-                <select class="form-select shadow-sm">
+                <select id="selectTamano" class="form-select shadow-sm">
                     <option>10 personas</option>
                     <option>15 personas</option>
                     <option>20 personas</option>
@@ -63,7 +63,7 @@
 
         <div class="mb-3">
             <label class="form-label">2) Selecciona relleno</label>
-            <select class="form-select">
+            <select id="selectRelleno" class="form-select">
             <option>Manjar</option>
             <option>Crema</option>
             <option>Chocolate</option>
@@ -72,13 +72,13 @@
 
         <div class="mb-3">
             <label class="form-label">3) Mensaje personalizado</label>
-            <input type="text" class="form-control shadow-sm" maxlength="40" placeholder="Máx. 40 caracteres">
+            <input id="inputMensaje" type="text" class="form-control shadow-sm" maxlength="40" placeholder="Máx. 40 caracteres">
         </div>
 
         <!-- Botones -->
             <div class="d-flex justify-content-between mt-4">
-                <button class="btn btn-success">Precio: $21.990</button>
-                <button class="btn btn-primary">Añadir al carrito</button>
+                <button id="btnPrecio" class="btn btn-success">Precio: $21.990</button>
+                <button id="btnAgregarCarrito" class="btn btn-primary">Añadir al carrito</button>
             </div>
             </div>
         </div>
@@ -88,5 +88,37 @@
         <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
     </footer>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="productos.js"></script>
+    <script src="carrito.js"></script>
+
+    <script>
+        // Leer el id desde la URL
+        const params = new URLSearchParams(window.location.search);
+        const idProducto = params.get("id") || "frambuesa";
+
+        // Buscar producto en la lista
+        const producto = buscarProductoPorId(idProducto) || PRODUCTOS[0];
+
+        // Pintar datos en la vista
+        document.getElementById("imgProducto").src = producto.imagen;
+        document.getElementById("imgProducto").alt = producto.nombre;
+        document.getElementById("tituloProducto").textContent = producto.nombre;
+        document.getElementById("btnPrecio").textContent =
+            "Precio: " + formatearPrecio(producto.precio);
+
+        // Click en "Añadir al carrito"
+        document.getElementById("btnAgregarCarrito").addEventListener("click", () => {
+            const tamano  = document.getElementById("selectTamano").value;
+            const relleno = document.getElementById("selectRelleno").value;
+            const mensaje = document.getElementById("inputMensaje").value;
+
+            agregarAlCarrito(producto, { tamano, relleno, mensaje });
+
+            alert("La torta fue agregada al carrito ");
+            window.location.href = "carrito_compra.html";
+        });
+    </script>
 </body>
 </html>
