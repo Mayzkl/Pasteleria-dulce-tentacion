@@ -11,7 +11,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">Dulce Tentación</a>
+            <a class="navbar-brand fw-bold" href="index.html">Dulce Tentación</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -39,52 +39,61 @@
     <div class="container my-5 text-center">
         <h2 class="mb-4 fw-bold">Boleta electrónica</h2>
 
-        <!-- Resumen del pedido -->
-        <div class="row justify-content-center mb-4">
-            <div class="col-md-6">
-                <div class="border rounded bg-white p-3 shadow-sm d-flex align-items-center">
-                    <div class="me-3">
-                        <img src="https://velvetbakery.cl/cdn/shop/products/MerengueFrambuesaCSh.jpg?v=1666199845"
-                    class="img-fluid rounded" alt="Torta Frambuesa" style="max-width: 120px;">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!--Datos de la boleta-->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h5 class="card-title mb-1">Dulce Tentacion</h5>
+                                <small class="text-muted">Pasteleria online</small>
+                            </div>
+                            <div class="text-end">
+                                <p id="numeroBoleta" class="fw-bold mb-0">Boleta N°</p>
+                                <small id="fechaBoleta" class="text-muted"></small>
+                            </div>
+                        </div>
+                        <hr>
+                        <p id="datosCliente" class="mb-1"></p>
+                        <p id="datosEntrega" class="mb-0 text-muted"></p>
                     </div>
-                    <div class="text-start">
-                        <p class="mb-1"><strong>Boleta N°:</strong> 0002341</p>
-                        <p class="mb-1"><strong>Producto:</strong> Torta Frambuesa</p>
-                        <p class="mb-1"><strong>Total:</strong> $33.990</p>
-                        <p class="mb-0"><strong>Entrega:</strong> 24/10 - 09:00 a 09:30</p>
+                </div>
+                
+                <!--Detalle productos-->
+                <div class="card shadow-sm mb-4">
+                    <div class=" card-body">
+                        <h5 class="card-title mb-3">Detalle de la compra</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th class="text-center">tamaño</th>
+                                        <th>Mensaje</th>
+                                        <th class="text-end">Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaProductos">
+                                    <!--Items carrito-->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex flex-column align-items-end mt-3">
+                            <p id="subtotalBoleta" class="mb-1">Subtotal: $0</p>
+                            <p id="envioBoleta" class="mb-1">Envio: $0</p>
+                            <p id="totalBoleta" class="fw-bold mb-0">Total: $0</p>
+                        </div>
                     </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button class="btn btn-outline-secondary" onclick="window.location.href='index.html'">Volver al inicio</button>
+                    <button class="btn btn-primary" onclick="window.location.href='Seguimiento.html'">Ver seguimiento del pedido</button>
                 </div>
             </div>
         </div>
-
-        <!-- Mensaje -->
-        <p class="mb-4">
-            Pago aprobado con éxito. Tu boleta fue enviada al correo registrado.<br>
-            También puedes descargarla o reenviarla nuevamente.
-        </p>
-
-        <!-- Botones -->
-        <div class="d-flex justify-content-center gap-3">
-            <button class="btn btn-outline-primary px-4" id="btnReenviar">Reenviar al correo</button>
-            <button class="btn btn-outline-secondary px-4" id="btnDescargar">Descargar PDF</button>
-        </div>
-    </div>
-
-        <!-- Modal de confirmación -->
-    <div class="modal fade" id="modalBoleta" tabindex="-1" aria-labelledby="modalBoletaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-center">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="modalBoletaLabel">Acción completada</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p id="mensajeModal"></p>
-                    <button class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    </div>    
 
     <!-- Footer -->
     <footer class="text-center py-3 bg-dark text-light mt-auto">
@@ -92,20 +101,73 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="productos.js"></script>
+    <script src="carrito.js"></script>
+
     <script>
-        const modal = new bootstrap.Modal(document.getElementById('modalBoleta'));
-        const mensajeModal = document.getElementById('mensajeModal');
+        const CLAVE_ORDEN    = "orden_dulce_tentacion";
+        const CLAVE_ENTREGA  = "datos_entrega_dulce_tentacion";
+        const CLAVE_CARRITO  = "carrito_dulce_tentacion";
 
-        document.getElementById('btnReenviar').addEventListener('click', () => {
-            mensajeModal.textContent = "Tu boleta ha sido reenviada correctamente al correo.";
-            modal.show();
+        const orden        = JSON.parse(localStorage.getItem(CLAVE_ORDEN)   || "{}");
+        const datosEntrega = orden.entrega || JSON.parse(localStorage.getItem(CLAVE_ENTREGA) || "{}");
+        const carrito      = typeof obtenerCarrito === "function"
+                            ? obtenerCarrito()
+                            : JSON.parse(localStorage.getItem(CLAVE_CARRITO) || "[]");
+
+        function formatear(valor) {
+            return "$" + (valor || 0).toLocaleString("es-CL");
+        }
+
+        // Encabezado
+        const numeroBoletaEl = document.getElementById("numeroBoleta");
+        const fechaBoletaEl  = document.getElementById("fechaBoleta");
+        const datosClienteEl = document.getElementById("datosCliente");
+        const datosEntregaEl = document.getElementById("datosEntrega");
+
+        numeroBoletaEl.textContent = "Boleta N° " + (orden.numero || "DT-XXXXXX");
+
+        const fecha = orden.fechaCreacion ? new Date(orden.fechaCreacion) : new Date();
+        fechaBoletaEl.textContent = "Fecha: " + fecha.toLocaleString("es-CL");
+
+        datosClienteEl.textContent =
+            "Cliente: " + (datosEntrega.nombreDestinatario || "Sin nombre");
+
+        datosEntregaEl.textContent =
+            "Entrega en: " +
+            (datosEntrega.direccion || "Sin dirección") + ", " +
+            (datosEntrega.comuna || "") +
+            " | Tipo: " + (datosEntrega.tipoEntrega === "envio" ? "Envío a domicilio" : "Retiro en tienda") +
+            " | Fecha: " + (datosEntrega.fecha || "-") +
+            " (" + (datosEntrega.franja || "-") + ")";
+
+        // Tabla de productos
+        const tbody = document.getElementById("tablaProductos");
+        let subtotal = 0;
+
+        carrito.forEach(item => {
+            subtotal += item.precio;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td>${item.nombre}</td>
+                <td class="text-center">${item.tamano || "-"}${item.tamano ? " pers." : ""}</td>
+                <td class="text-center">${item.relleno || "-"}</td>
+                <td>${item.mensaje || "(sin mensaje)"}</td>
+                <td class="text-end">${formatear(item.precio)}</td>
+            `;
+            tbody.appendChild(tr);
         });
 
-        document.getElementById('btnDescargar').addEventListener('click', () => {
-            mensajeModal.textContent = "Tu boleta ha sido descargada en formato PDF.";
-            modal.show();
-        });
+        const costoEnvio = datosEntrega.costoEnvio || 0;
+        const total      = subtotal + costoEnvio;
+
+        document.getElementById("subtotalBoleta").textContent = "Subtotal: " + formatear(subtotal);
+        document.getElementById("envioBoleta").textContent    = "Envío: "    + formatear(costoEnvio);
+        document.getElementById("totalBoleta").textContent    = "Total: "    + formatear(total);
+
+        // Si quieres que después de la boleta el carrito quede vacío:
+        localStorage.removeItem(CLAVE_CARRITO);
     </script>
-
 </body>
 </html>
