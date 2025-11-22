@@ -6,9 +6,7 @@ const Usuario = require("../modelos/Usuario");
 
 const crear_usuario = (req, res) => {
 
-    
     let parametros = req.body;
-    
     try {
         validarUsuario(parametros);
 
