@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Seleccion entrega</title>
+    <title>Selección de entrega</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="estilos.css" rel="stylesheet">
 </head>
@@ -11,7 +11,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="#">Dulce Tentación</a>
+            <a class="navbar-brand fw-bold" href="index.html"> Dulce Tentación</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -29,93 +29,170 @@
                         <a class="nav-link" href="login.html">Iniciar sesión</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="carrito_compra.html">Carrito</a>
+                        <a class="nav-link" href="carrito_compra.html"> Carrito</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container my-5">
-        <h2 class="text-center mb-4 fw-bold">Selecciona fecha y franja horaria de entrega</h2>
+<div class="container my-5">
+    <h2 class="text-center mb-4">Selección de entrega</h2>
 
-        <div class="row justify-content-center">
-        <!-- Calendario -->
-            <div class="col-md-4 text-center mb-4 mb-md-0">
-                <div class="border bg-white p-3 shadow-sm rounded">
-                    <h5 class="fw-bold">Octubre 2025</h5>
-                    <table class="table table-bordered text-center align-middle mb-2">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Lu</th><th>Ma</th><th>Mi</th><th>Ju</th><th>Vi</th><th>Sa</th><th>Do</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>20</td><td>21</td><td>22</td><td>23</td><td class="bg-primary text-white fw-bold">24</td><td>25</td><td>26</td></tr>
-                            <tr><td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td></tr>
-                        </tbody>
-                </table>
-                <p class="text-muted small mb-0">Tiempo mínimo de preparación: 24 hrs</p>
-                <p class="text-muted small">Fecha seleccionada: <span id="fechaSeleccionada" class="fw-semibold text-primary">24/10/2025</span></p>
-            </div>
-        </div>
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Datos de entrega</h5>
 
-        <!-- Horarios -->
-            <div class="col-md-4">
-                <h5 class="text-center mb-3 fw-bold">Franjas horarias disponibles</h5>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-outline-primary hora-btn" data-hora="09:00 - 09:30">09:00 - 09:30</button>
-                    <button class="btn btn-outline-primary hora-btn" data-hora="10:00 - 10:30">10:00 - 10:30</button>
-                    <button class="btn btn-outline-primary hora-btn" data-hora="12:00 - 12:30">12:00 - 12:30</button>
-                    <button class="btn btn-outline-primary hora-btn" data-hora="15:00 - 15:30">15:00 - 15:30</button>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del destinatario</label>
+                        <input id="nombreDestinatario" type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Dirección</label>
+                        <input id="direccion" type="text" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Comuna</label>
+                        <select id="comuna" class="form-select">
+                            <option value="">Seleccionar...</option>
+                            <option>La Serena</option>
+                            <option>Coquimbo</option>
+                            <option>Otra comuna</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Fecha de entrega</label>
+                        <input id="fecha" type="date" class="form-control">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Franja horaria</label>
+                        <select id="franja" class="form-select">
+                            <option value="">Seleccionar...</option>
+                            <option>09:00 - 12:00</option>
+                            <option>12:00 - 15:00</option>
+                            <option>15:00 - 18:00</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de entrega</label>
+                        <select id="tipoEntrega" class="form-select">
+                            <option value="retiro">Retiro en tienda</option>
+                            <option value="envio">Envío a domicilio</option>
+                        </select>
+                    </div>
                 </div>
-                    <p class="text-muted small text-center mt-3" id="horaSeleccionadaTexto">Selecciona una franja horaria.</p>
+            </div>
+
+            <!-- Resumen simple del total -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-1">Total productos</h6>
+                        <p id="totalProductos" class="fw-bold mb-0">$0</p>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">Costo envío</h6>
+                        <p id="costoEnvio" class="fw-bold mb-0">$0</p>
+                    </div>
+                    <div>
+                        <h6 class="mb-1">Total pedido</h6>
+                        <p id="totalPedido" class="fw-bold text-success mb-0">$0</p>
+                    </div>
                 </div>
             </div>
 
-        <!-- Botón continuar -->
-        <div class="text-center mt-4">
-            <button id="btnContinuar" class="btn btn-primary btn-lg" disabled>Continuar</button>
+            <div class="d-flex justify-content-between">
+                <button class="btn btn-outline-secondary"
+                        onclick="window.location.href='carrito_compra.html'">
+                    Volver al carrito
+                </button>
+                <button id="btnContinuarPago" class="btn btn-success">
+                    Continuar a pago
+                </button>
+            </div>
         </div>
     </div>
+</div>
 
-    <footer class="text-center py-3 bg-dark text-light mt-auto">
-        <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
-    </footer>
+<footer class="text-center py-3 bg-dark text-light mt-auto">
+    <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
+</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            const botonesHora = document.querySelectorAll('.hora-btn');
-            const horaTexto = document.getElementById('horaSeleccionadaTexto');
-            const btnContinuar = document.getElementById('btnContinuar');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="productos.js"></script>
+<script src="carrito.js"></script>
 
-            let horaSeleccionada = null;
+<script>
+    const CLAVE_ENTREGA = "datos_entrega_dulce_tentacion";
 
-            botonesHora.forEach(boton => {
-                boton.addEventListener('click', () => {
-                // quitar selección previa
-                botonesHora.forEach(b => b.classList.remove('active', 'btn-primary'));
-                botonesHora.forEach(b => b.classList.add('btn-outline-primary'));
-                
-                // marcar seleccionada
-                boton.classList.remove('btn-outline-primary');
-                boton.classList.add('btn-primary', 'active');
+    const carrito = obtenerCarrito();
 
-                horaSeleccionada = boton.getAttribute('data-hora');
-                horaTexto.textContent = `Franja seleccionada: ${horaSeleccionada}`;
-                horaTexto.classList.remove('text-muted');
-                horaTexto.classList.add('fw-semibold', 'text-primary');
+    const totalProductosEl = document.getElementById('totalProductos');
+    const costoEnvioEl     = document.getElementById('costoEnvio');
+    const totalPedidoEl    = document.getElementById('totalPedido');
 
-                btnContinuar.disabled = false;
-            });
-        });
+    let totalProductos = 0;
 
-        btnContinuar.addEventListener('click', () => {
-            alert(`Has seleccionado el ${document.getElementById('fechaSeleccionada').textContent} a las ${horaSeleccionada}.`);
-            window.location.href = "confirmacion.html";
-        });
-    </script>
+    carrito.forEach(item => {
+        totalProductos += item.precio;
+    });
 
+    function formatear(valor) {
+        return "$" + valor.toLocaleString("es-CL");
+    }
 
+    function calcularCostoEnvio(tipoEntrega, comuna) {
+        if (tipoEntrega === "retiro") return 0;
+        if (comuna === "La Serena" || comuna === "Coquimbo") return 3000;
+        return 5000; // otras comunas
+    }
+
+    function actualizarResumen() {
+        const tipoEntrega = document.getElementById('tipoEntrega').value;
+        const comuna = document.getElementById('comuna').value;
+
+        const costoEnvio = calcularCostoEnvio(tipoEntrega, comuna);
+        const totalPedido = totalProductos + costoEnvio;
+
+        totalProductosEl.textContent = formatear(totalProductos);
+        costoEnvioEl.textContent     = formatear(costoEnvio);
+        totalPedidoEl.textContent    = formatear(totalPedido);
+    }
+
+    // Inicial
+    actualizarResumen();
+
+    document.getElementById('tipoEntrega').addEventListener('change', actualizarResumen);
+    document.getElementById('comuna').addEventListener('change', actualizarResumen);
+
+    document.getElementById('btnContinuarPago').addEventListener('click', () => {
+        const datos = {
+            nombreDestinatario: document.getElementById('nombreDestinatario').value,
+            direccion: document.getElementById('direccion').value,
+            comuna: document.getElementById('comuna').value,
+            fecha: document.getElementById('fecha').value,
+            franja: document.getElementById('franja').value,
+            tipoEntrega: document.getElementById('tipoEntrega').value,
+            totalProductos: totalProductos,
+            costoEnvio: calcularCostoEnvio(
+                document.getElementById('tipoEntrega').value,
+                document.getElementById('comuna').value
+            )
+        };
+
+        // Guardar en localStorage
+        localStorage.setItem(CLAVE_ENTREGA, JSON.stringify(datos));
+
+        // Ir a pago
+        window.location.href = "PagoElectronico.html";
+    });
+</script>
 </body>
-</html>  
+</html>
