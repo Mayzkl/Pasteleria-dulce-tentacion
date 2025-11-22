@@ -7,38 +7,11 @@
         <link href="estilos.css" rel="stylesheet">
     </head>
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light border-bottom">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html"> Dulce Tentación</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-    
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="catalogo.html">Catálogo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registro.html">Registro</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Iniciar sesión</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="carrito_compra.html"> Carrito</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+    <div id="navbar-container"></div>
     <div class="d-flex justify-content-center align-items-center vh-100">
         <div class="card shadow p-4" style="min-width: 350px;">
             <h2 class="mb-4 text-center">Registro</h2>
-            <form id="registroForm">
+            <form id="formRegistro">
                 <div class="mb-3">
                     <label class="form-label">Ingresa tu nombre</label>
                     <input type="text" class="form-control" id='nombre' placeholder="Nombre completo" required>
@@ -56,10 +29,11 @@
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Confirmar contraseña</label>
-                    <input type="password" class="form-control" id="confirmar" placeholder="********" required>
+                    <input type="password" class="form-control" id="password2" placeholder="********" required>
                     <div class="invalid-feedback">Las contraseñas no coinciden.</div>
                 </div>
-                <button id="submit" class="btn btn-primary w-100">Registrarse</button>
+                <button type="submit" onclick="setTimeout(function() {window.location.href='login.html';}, 2000)">Registrarse</button>
+                <p id="msgRegistro"></p>
             </form>
         </div>
     </div>
@@ -79,37 +53,50 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const form = document.getElementById('registroForm');
-        const modal = new bootstrap.Modal(document.getElementById('registroExitoso'));
-
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-
-            const pass = document.getElementById('password').value;
-            const confirmar = document.getElementById('confirmar').value;
-
-            if (!form.checkValidity() || pass !== confirmar) {
-                e.stopPropagation();
-                if (pass !== confirmar) {
-                    document.getElementById('confirmar').classList.add('is-invalid');
-                }
-                form.classList.add('was-validated');
-            } else {
-                modal.show();
-                form.reset();
-                form.classList.remove('was-validated');
-                }
-            });
-
-            document.getElementById('btnContinuar').addEventListener('click', () => {
-                window.location.href = "login.html";
-            });
-    </script>
-
     <footer class="text-center py-3 bg-dark text-light mt-auto">
         <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="usuarios.js"></script>
+    <script src="navbar.js"></script>
+    
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("formRegistro");
+        const msg  = document.getElementById("msgRegistro");
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            const nombre  = document.getElementById("nombre").value.trim();
+            const correo  = document.getElementById("correo").value.trim();
+            const pass1   = document.getElementById("password").value.trim();
+            const pass2   = document.getElementById("password2").value.trim();
+
+            if (!nombre || !correo || !pass1 || !pass2) {
+                msg.textContent = "Completa todos los campos.";
+                msg.className = "mt-2 text-danger";
+                return;
+            }
+
+            if (pass1 !== pass2) {
+                msg.textContent = "Las contraseñas no coinciden.";
+                msg.className = "mt-2 text-danger";
+                return;
+            }
+
+            try {
+                registrarUsuario({ nombre, correo, password: pass1 });
+                msg.textContent = "Registro exitoso. Ahora puedes iniciar sesión.";
+                msg.className = "mt-2 text-success";
+                form.reset();
+            } catch (err) {
+                msg.textContent = err.message;
+                msg.className = "mt-2 text-danger";
+            }
+        });
+    });
+    </script>
 </body>
 </html>

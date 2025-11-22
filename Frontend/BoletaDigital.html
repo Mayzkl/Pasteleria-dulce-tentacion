@@ -7,35 +7,7 @@
     <link href="estilos.css" rel="stylesheet">
 </head>
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light border-bottom">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Dulce Tentación</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-    
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="catalogo.html">Catálogo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registro.html">Registro</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Iniciar sesión</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="carrito_compra.html">Carrito</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+    <div id="navbar-container"></div>
     <div class="container my-5 text-center">
         <h2 class="mb-4 fw-bold">Boleta electrónica</h2>
 
@@ -101,25 +73,24 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="productos.js"></script>
-    <script src="carrito.js"></script>
+    <script src="usuarios.js"></script>
+    <script src="navbar.js"></script>
 
     <script>
-        const CLAVE_ORDEN    = "orden_dulce_tentacion";
-        const CLAVE_ENTREGA  = "datos_entrega_dulce_tentacion";
-        const CLAVE_CARRITO  = "carrito_dulce_tentacion";
+        const CLAVE_ORDEN   = "orden_dulce_tentacion";
+        const CLAVE_ENTREGA = "datos_entrega_dulce_tentacion";
 
         const orden        = JSON.parse(localStorage.getItem(CLAVE_ORDEN)   || "{}");
         const datosEntrega = orden.entrega || JSON.parse(localStorage.getItem(CLAVE_ENTREGA) || "{}");
-        const carrito      = typeof obtenerCarrito === "function"
-                            ? obtenerCarrito()
-                            : JSON.parse(localStorage.getItem(CLAVE_CARRITO) || "[]");
+
+        // 👇 AHORA LOS PRODUCTOS SALEN DE LA ORDEN
+        const carrito = orden.productos || [];
 
         function formatear(valor) {
             return "$" + (valor || 0).toLocaleString("es-CL");
         }
 
-        // Encabezado
+        // === Encabezado ===
         const numeroBoletaEl = document.getElementById("numeroBoleta");
         const fechaBoletaEl  = document.getElementById("fechaBoleta");
         const datosClienteEl = document.getElementById("datosCliente");
@@ -141,7 +112,7 @@
             " | Fecha: " + (datosEntrega.fecha || "-") +
             " (" + (datosEntrega.franja || "-") + ")";
 
-        // Tabla de productos
+        // === Tabla de productos ===
         const tbody = document.getElementById("tablaProductos");
         let subtotal = 0;
 
@@ -152,7 +123,6 @@
             tr.innerHTML = `
                 <td>${item.nombre}</td>
                 <td class="text-center">${item.tamano || "-"}${item.tamano ? " pers." : ""}</td>
-                <td class="text-center">${item.relleno || "-"}</td>
                 <td>${item.mensaje || "(sin mensaje)"}</td>
                 <td class="text-end">${formatear(item.precio)}</td>
             `;
@@ -165,9 +135,7 @@
         document.getElementById("subtotalBoleta").textContent = "Subtotal: " + formatear(subtotal);
         document.getElementById("envioBoleta").textContent    = "Envío: "    + formatear(costoEnvio);
         document.getElementById("totalBoleta").textContent    = "Total: "    + formatear(total);
-
-        // Si quieres que después de la boleta el carrito quede vacío:
-        localStorage.removeItem(CLAVE_CARRITO);
     </script>
+
 </body>
 </html>

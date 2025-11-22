@@ -2,114 +2,77 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Seguimiento</title>
+    <title>Seguimiento del pedido</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="estilos.css" rel="stylesheet">
 </head>
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light border-bottom">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Dulce Tentación</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-    
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="catalogo.html">Catálogo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registro.html">Registro</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Iniciar sesión</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="carrito_compra.html">Carrito</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-
+    <div id="navbar-container"></div>
     <div class="container my-5">
-        <h2 class="text-center mb-4 fw-bold">Seguimiento de Pedido</h2>
+        <h2 class="text-center mb-4 fw-bold">Seguimiento de tu pedido</h2>
 
-        <div class="row justify-content-center g-4">
-            <!-- Estado del pedido -->
-            <div class="col-md-5">
-                <div class="border rounded bg-white p-4 shadow-sm">
-                    <h5 class="mb-3 fw-semibold">Estado del pedido</h5>
-
-                    <!-- Línea de progreso -->
-                    <div class="progress mb-3" style="height: 25px;">
-                        <div class="progress-bar bg-success progress-bar-striped" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-                            En preparación
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <p id="numeroOrden" class="fw-bold mb-1">Pedido: -</p>
+                            <p id="infoEntrega" class="mb-0 text-muted"></p>
+                        </div>
+                        <div class="text-end">
+                            <span id="estadoActual" class="badge bg-primary">En preparación</span>
                         </div>
                     </div>
-
-                    <ul class="list-unstyled mb-0">
-                        <li>
-                            <strong>Pedido recibido</strong><br>
-                            <small>17/10/2025 12:43 PM</small>
-                        </li>
-                        <li class="mt-2 text-success">
-                            <strong>Pedido en preparación</strong><br>
-                            <small>17/10/2025 13:27 PM</small>
-                        </li>
-                        <li class="mt-2 text-muted">
-                            <strong>Listo para despacho</strong><br>
-                            <small>Pendiente</small>
-                        </li>
-                        <li class="mt-2 text-muted">
-                            <strong>Entregado</strong><br>
-                            <small>Pendiente</small>
-                        </li>
-                    </ul>
                 </div>
-            </div>
 
-            <!-- Contacto -->
-            <div class="col-md-5">
-                <div class="border rounded bg-white p-4 shadow-sm">
-                    <h5 class="mb-3 fw-semibold">Contacto para despacho</h5>
-                    <p class="small text-muted">Ingresa tu correo o número para confirmar el contacto durante la entrega.</p>
+                <!-- Línea de estados -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title mb-3">Estado del pedido</h5>
 
-                    <form id="formContacto" novalidate>
-                        <div class="mb-3">
-                            <input type="email" id="correo" class="form-control" placeholder="correo@ejemplo.com" required>
-                            <div class="invalid-feedback">Ingresa un correo válido.</div>
+                        <div class="row text-center">
+                            <div class="col-6 col-md-3 mb-3">
+                                <div id="step-recibido" class="p-3 border rounded-3">
+                                    <div class="fw-bold">Recibido</div>
+                                    <small>Orden generada</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-3">
+                                <div id="step-preparacion" class="p-3 border rounded-3">
+                                    <div class="fw-bold">En preparación</div>
+                                    <small>Horneando tu pedido</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-3">
+                                <div id="step-despacho" class="p-3 border rounded-3">
+                                    <div class="fw-bold">En despacho</div>
+                                    <small>En camino</small>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3 mb-3">
+                                <div id="step-entregado" class="p-3 border rounded-3">
+                                    <div class="fw-bold">Entregado</div>
+                                    <small>Pedido completado</small>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <input type="text" id="telefono" class="form-control" placeholder="+56 9 ...." required>
-                            <div class="invalid-feedback">Ingresa un número válido.</div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Enviar</button>
-                    </form>
+
+                        <p id="mensajeEstado" class="mt-3 mb-0"></p>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button class="btn btn-outline-secondary" onclick="window.location.href='index.html'">
+                        Volver al inicio
+                    </button>
+                    <button class="btn btn-outline-primary" onclick="window.location.href='BoletaDigital.html'">
+                        Ver boleta
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de confirmación -->
-    <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-labelledby="modalConfirmacionLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-center">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="modalConfirmacionLabel">Contacto guardado</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Tu información de contacto fue registrada correctamente.</p>
-                    <button class="btn btn-success" data-bs-dismiss="modal">Aceptar</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Footer -->
     <footer class="text-center py-3 bg-dark text-light mt-auto">
@@ -117,22 +80,70 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="usuarios.js"></script>
+    <script src="navbar.js"></script>
     <script>
-        const form = document.getElementById('formContacto');
-        const modal = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
+        const CLAVE_ORDEN = "orden_dulce_tentacion";
+        const orden = JSON.parse(localStorage.getItem(CLAVE_ORDEN) || "{}");
 
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
+        const numeroOrdenEl = document.getElementById("numeroOrden");
+        const infoEntregaEl = document.getElementById("infoEntrega");
+        const estadoActualEl = document.getElementById("estadoActual");
+        const mensajeEstadoEl = document.getElementById("mensajeEstado");
 
-            if (!form.checkValidity()) {
-                e.stopPropagation();
-                form.classList.add('was-validated');
-            } else {
-                modal.show();
-                form.reset();
-                form.classList.remove('was-validated');
-            }
-        });
+        numeroOrdenEl.textContent = "Pedido: " + (orden.numero || "DT-XXXXXX");
+
+        const entrega = orden.entrega || {};
+        infoEntregaEl.textContent =
+            "Entrega el " + (entrega.fecha || "-") +
+            " en " + (entrega.comuna || "-") +
+            " (" + (entrega.franja || "-") + ")";
+
+        // Estados posibles
+        const estados = ["Recibido", "En preparación", "En despacho", "Entregado"];
+
+        // Estado guardado o por defecto
+        const estado = orden.estado || "En preparación";
+        estadoActualEl.textContent = estado;
+
+        function activarPaso(id) {
+            const el = document.getElementById(id);
+            el.classList.add("bg-success", "text-white");
+            el.classList.remove("border");
+        }
+
+        // Marcar pasos según estado
+        activarPaso("step-recibido");
+        if (estado === "En preparación" || estado === "En despacho" || estado === "Entregado") {
+            activarPaso("step-preparacion");
+        }
+        if (estado === "En despacho" || estado === "Entregado") {
+            activarPaso("step-despacho");
+        }
+        if (estado === "Entregado") {
+            activarPaso("step-entregado");
+        }
+
+        // Mensaje descriptivo
+        let mensaje = "";
+        switch (estado) {
+            case "Recibido":
+                mensaje = "Tu pedido fue recibido correctamente y está en cola para ser preparado.";
+                break;
+            case "En preparación":
+                mensaje = "Nuestro equipo está preparando tu torta con todos los detalles que elegiste.";
+                break;
+            case "En despacho":
+                mensaje = "Tu pedido salió a reparto. Pronto debería llegar a la dirección indicada.";
+                break;
+            case "Entregado":
+                mensaje = "Tu pedido fue entregado. ¡Esperamos que lo disfrutes!";
+                break;
+            default:
+                mensaje = "Pedido registrado. El estado detallado aún no está disponible.";
+        }
+
+        mensajeEstadoEl.textContent = mensaje;
     </script>
 </body>
 </html>
