@@ -33,6 +33,13 @@ body {
     background-color: #fff !important;
 }
 
+.card-img-top {
+    height: 280px;
+    object-fit: cover;
+    object-position: center center;
+    display: block;
+}
+
 /* Footer */
 footer {
     background-color: #E8A0A0;
