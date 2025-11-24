@@ -84,6 +84,7 @@
         const CLAVE_ENTREGA = "datos_entrega_dulce_tentacion";
         const CLAVE_ORDEN   = "orden_dulce_tentacion";
         const CLAVE_CARRITO = "carrito_dulce_tentacion";
+        const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion"; 
 
         const datosEntrega = JSON.parse(localStorage.getItem(CLAVE_ENTREGA) || "{}");
 
@@ -152,12 +153,16 @@
                 numero: numeroOrden,
                 total: total,
                 fechaCreacion: new Date().toISOString(),
-                estado: "En preparación",
+                estado: "Pagada",
                 entrega: datosEntrega,
                 productos: carrito
             };
 
             localStorage.setItem(CLAVE_ORDEN, JSON.stringify(orden));
+
+            const historialActual = JSON.parse(localStorage.getItem(CLAVE_HISTORIAL) || "[]");
+            historialActual.push(orden);
+            localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historialActual));
 
             //Limpiar carrito
             localStorage.removeItem(CLAVE_CARRITO);

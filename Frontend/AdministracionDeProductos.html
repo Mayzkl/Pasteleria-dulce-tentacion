@@ -7,35 +7,8 @@
         <link href="estilos.css" rel="stylesheet">
     </head>
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
+    <div id="navbar-container"></div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light border-bottom">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="index.html">Dulce Tentación</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-    
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="catalogo.html">Catálogo</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="registro.html">Registro</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="login.html">Iniciar sesión</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="carrito_compra.html">Carrito</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    
     <div class="container my-5">
         <h2 class="mb-4 fw-bold text-center">Catálogo de Tortas</h2>
 
@@ -59,38 +32,11 @@
             </div>
         </div>
 
-        <!-- Grid de productos -->
-        <div class="row g-3">
-            <div class="col-md-3">
-                <div class="border p-3 text-center bg-white shadow-sm rounded">
-                    <p><strong>Torta Selva Negra</strong></p>
-                    <p>$19.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border p-3 text-center bg-white shadow-sm rounded">
-                    <p><strong>Torta Tres Leches</strong></p>
-                    <p>$12.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border p-3 text-center bg-white shadow-sm rounded">
-                    <p><strong>Torta Frambuesa</strong></p>
-                    <p>$21.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="border p-3 text-center bg-white shadow-sm rounded">
-                    <p><strong>Torta Mil Hojas</strong></p>
-                    <p>$14.990</p>
-                    <button class="btn btn-outline-primary btn-sm">Ver detalle</button>
-                </div>
-            </div>
-        </div>
+    <!-- Grid de productos -->
+    <div class="row g-3" id="gridProductosAdmin">
+    <!-- Tarjetas se generan desde JS -->
     </div>
+    
 
     <!-- Modal de agregar/cambiar producto -->
     <div class="modal fade" id="productoModal" tabindex="-1" aria-labelledby="productoModalLabel" aria-hidden="true">
@@ -103,6 +49,7 @@
 
                 <form id="formProducto" novalidate>
                     <div class="modal-body">
+                        <input type="hidden" id="productoId">
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Nombre del producto</label>
@@ -122,9 +69,10 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Imagen del producto</label>
-                                <input type="file" class="form-control" id="imagen" accept="image/*" required>
-                                <div class="invalid-feedback">Selecciona una imagen.</div>
+                                <label class="form-label fw-semibold">URL de imagen del producto</label>
+                                <input type="text" class="form-control" id="imagen" placeholder="https://...">
+                                <div class="invalid-feedback">Ingresa una URL de imagen.</div>
+
                             </div>
 
                             <div class="col-md-6">
@@ -170,22 +118,10 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const formProducto = document.getElementById('formProducto');
-        const modalConfirm = new bootstrap.Modal(document.getElementById('confirmModal'));
+    <script src="usuarios.js"></script>
+    <script src="navbar.js"></script>
+    <script src="productos.js"></script>
+    <script src="admin-productos.js"></script>
 
-        formProducto.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            if (!formProducto.checkValidity()) {
-                e.stopPropagation();
-                formProducto.classList.add('was-validated');
-            } else {
-                modalConfirm.show();
-                formProducto.reset();
-                formProducto.classList.remove('was-validated');
-            }
-        });
-    </script>
 </body>
 </html>

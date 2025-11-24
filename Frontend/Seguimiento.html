@@ -9,7 +9,7 @@
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
     <div id="navbar-container"></div>
     <div class="container my-5">
-        <h2 class="text-center mb-4 fw-bold">Seguimiento de tu pedido</h2>
+        <h2 class="text-center mb-4 fw-bold">Seguimiento del pedido</h2>
 
         <div class="row justify-content-center">
             <div class="col-lg-8">
@@ -65,6 +65,9 @@
                     <button class="btn btn-outline-secondary" onclick="window.location.href='index.html'">
                         Volver al inicio
                     </button>
+                    <button class="btn btn-danger" onclick="window.location.href='AnularCompra.html'">
+                        Anular pedido
+                    </button>
                     <button class="btn btn-outline-primary" onclick="window.location.href='BoletaDigital.html'">
                         Ver boleta
                     </button>
@@ -83,67 +86,126 @@
     <script src="usuarios.js"></script>
     <script src="navbar.js"></script>
     <script>
-        const CLAVE_ORDEN = "orden_dulce_tentacion";
-        const orden = JSON.parse(localStorage.getItem(CLAVE_ORDEN) || "{}");
+        const CLAVE_ORDEN     = "orden_dulce_tentacion";
+        const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion";
 
-        const numeroOrdenEl = document.getElementById("numeroOrden");
-        const infoEntregaEl = document.getElementById("infoEntrega");
-        const estadoActualEl = document.getElementById("estadoActual");
-        const mensajeEstadoEl = document.getElementById("mensajeEstado");
+        function leerOrdenActual() {
+            try {
+                return JSON.parse(localStorage.getItem(CLAVE_ORDEN) || "null");
+            } catch {
+                return null;
+            }
+        }
 
-        numeroOrdenEl.textContent = "Pedido: " + (orden.numero || "DT-XXXXXX");
+        function leerHistorial() {
+            try {
+                return JSON.parse(localStorage.getItem(CLAVE_HISTORIAL) || "[]");
+            } catch {
+                return [];
+            }
+        }
 
-        const entrega = orden.entrega || {};
-        infoEntregaEl.textContent =
-            "Entrega el " + (entrega.fecha || "-") +
-            " en " + (entrega.comuna || "-") +
-            " (" + (entrega.franja || "-") + ")";
-
-        // Estados posibles
-        const estados = ["Recibido", "En preparación", "En despacho", "Entregado"];
-
-        // Estado guardado o por defecto
-        const estado = orden.estado || "En preparación";
-        estadoActualEl.textContent = estado;
+        function formatearFecha(fechaIso) {
+            if (!fechaIso) return "-";
+            const f = new Date(fechaIso);
+            return f.toLocaleString("es-CL");
+        }
 
         function activarPaso(id) {
             const el = document.getElementById(id);
+            if (!el) return;
             el.classList.add("bg-success", "text-white");
             el.classList.remove("border");
         }
+        // Carga de datos
+        const numeroOrdenEl  = document.getElementById("numeroOrden");
+        const infoEntregaEl  = document.getElementById("infoEntrega");
+        const estadoActualEl = document.getElementById("estadoActual");
+        const mensajeEstadoEl= document.getElementById("mensajeEstado");
 
-        // Marcar pasos según estado
-        activarPaso("step-recibido");
-        if (estado === "En preparación" || estado === "En despacho" || estado === "Entregado") {
-            activarPaso("step-preparacion");
-        }
-        if (estado === "En despacho" || estado === "Entregado") {
-            activarPaso("step-despacho");
-        }
-        if (estado === "Entregado") {
-            activarPaso("step-entregado");
-        }
+        let orden = leerOrdenActual();
 
-        // Mensaje descriptivo
-        let mensaje = "";
-        switch (estado) {
-            case "Recibido":
-                mensaje = "Tu pedido fue recibido correctamente y está en cola para ser preparado.";
-                break;
-            case "En preparación":
-                mensaje = "Nuestro equipo está preparando tu torta con todos los detalles que elegiste.";
-                break;
-            case "En despacho":
-                mensaje = "Tu pedido salió a reparto. Pronto debería llegar a la dirección indicada.";
-                break;
-            case "Entregado":
-                mensaje = "Tu pedido fue entregado. ¡Esperamos que lo disfrutes!";
-                break;
-            default:
-                mensaje = "Pedido registrado. El estado detallado aún no está disponible.";
-        }
+        if (!orden) {
+            numeroOrdenEl.textContent  = "Pedido: (sin pedido reciente)";
+            infoEntregaEl.textContent  = "No se encontró información de seguimiento.";
+            estadoActualEl.textContent = "Sin pedido";
+            estadoActualEl.className   = "badge bg-secondary";
+            mensajeEstadoEl.textContent =
+                "Realiza una compra para poder visualizar el seguimiento.";
+        } else {
+            // Intentar refrescar estado con el historial
+            const historial = leerHistorial();
+            const encontrada = historial.find(o => (o.numero || "") === (orden.numero || ""));
+            if (encontrada) {
+                orden.estado = encontrada.estado || orden.estado;
+            }
 
-        mensajeEstadoEl.textContent = mensaje;
+            const entrega = orden.entrega || {};
+
+            numeroOrdenEl.textContent = "Pedido: " + (orden.numero || "DT-XXXXXX");
+            infoEntregaEl.textContent =
+                "Entrega el " + (entrega.fecha || "-") +
+                " en " + (entrega.comuna || "-") +
+                " (" + (entrega.franja || "-") + ")";
+
+            const estado = orden.estado || "En preparación";
+            estadoActualEl.textContent = estado;
+
+            // Color del badge según estado
+            let badgeClass = "badge bg-primary";
+            if (estado === "En preparación") badgeClass = "badge bg-warning text-dark";
+            if (estado === "En despacho")    badgeClass = "badge bg-info text-dark";
+            if (estado === "Entregado")      badgeClass = "badge bg-success";
+            if (estado === "Anulación solicitada") badgeClass = "badge bg-danger";
+            if (estado === "Anulada")             badgeClass = "badge bg-dark";
+            estadoActualEl.className = badgeClass;
+
+            // Reset visual de pasos (por si recargas muchas veces)
+            ["step-recibido","step-preparacion","step-despacho","step-entregado"].forEach(id => {
+                const el = document.getElementById(id);
+                el.className = "p-3 border rounded-3";
+            });
+
+            // Marcar pasos según estado (solo tiene sentido para el flujo normal)
+            activarPaso("step-recibido");
+            if (["En preparación","En despacho","Entregado","Anulación solicitada","Anulada"].includes(estado)) {
+                activarPaso("step-preparacion");
+            }
+            if (["En despacho","Entregado"].includes(estado)) {
+                activarPaso("step-despacho");
+            }
+            if (estado === "Entregado") {
+                activarPaso("step-entregado");
+            }
+
+            // Mensaje descriptivo
+            let mensaje = "";
+            switch (estado) {
+                case "Recibido":
+                    mensaje = "Tu pedido fue recibido correctamente y está en cola para ser preparado.";
+                    break;
+                case "En preparación":
+                    mensaje = "Nuestro equipo está preparando tu torta con todos los detalles que elegiste.";
+                    break;
+                case "En despacho":
+                    mensaje = "Tu pedido salió a reparto. Pronto debería llegar a la dirección indicada.";
+                    break;
+                case "Entregado":
+                    mensaje = "Tu pedido fue entregado. ¡Esperamos que lo disfrutes!";
+                    break;
+                case "Anulación solicitada":
+                    mensaje = "Se ha recibido tu solicitud de anulación. El equipo revisará el caso y confirmará la cancelación.";
+                    break;
+                case "Anulada":
+                    mensaje = "La orden fue anulada. Si corresponde, la devolución o cancelación del pago será gestionada.";
+                    break;
+                default:
+                    mensaje = "Pedido registrado. El estado detallado aún no está disponible.";
+            }
+
+            mensajeEstadoEl.textContent = mensaje;
+        }
     </script>
+
 </body>
 </html>

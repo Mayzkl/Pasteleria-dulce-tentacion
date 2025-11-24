@@ -21,14 +21,14 @@ document.addEventListener("DOMContentLoaded", () => {
     </nav>
     `;
 
+    // 2. navabar si hay sesion activa
     const navRight = document.getElementById("navbar-right");
     const usuario  = typeof obtenerUsuarioActual === "function"
         ? obtenerUsuarioActual()
         : null;
 
-    // 2. navabar si hay sesion activa
     if (usuario) {
-        navRight.innerHTML = `
+        let items = `
             <li class="nav-item">
                 <span class="nav-link disabled">Hola, ${usuario.nombre}</span>
             </li>
@@ -43,15 +43,27 @@ document.addEventListener("DOMContentLoaded", () => {
             </li>
         `;
 
+        // Solo el admin ve estas opciones en el navbar
+        if (usuario.correo === "admin@dulcetentacion.cl") {
+            items += `
+                <li class="nav-item">
+                    <a class="nav-link" href="AdministracionDeProductos.html">Administración</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ReporteVentas.html">Reporte de ventas</a>
+                </li>
+            `;
+        }
+
+
+        navRight.innerHTML = items;
+
         document.getElementById("linkCerrarSesion").addEventListener("click", (e) => {
             e.preventDefault();
-            if (typeof cerrarSesion === "function") {
-                cerrarSesion();
-            }
+            cerrarSesion();
             window.location.href = "index.html";
         });
 
-    // 3. navbar normal cuando no hay sesion activa
     } else {
         navRight.innerHTML = `
             <li class="nav-item">
@@ -68,4 +80,5 @@ document.addEventListener("DOMContentLoaded", () => {
             </li>
         `;
     }
+
 });

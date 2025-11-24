@@ -75,3 +75,34 @@ const PRODUCTOS = [
     function formatearPrecio(valor) {
     return "$" + valor.toLocaleString("es-CL");
     }
+
+    const CLAVE_PRODUCTOS = "productos_dulce_tentacion";
+
+    // Devolver siempre la misma referencia
+    function obtenerProductos() {
+        return PRODUCTOS;
+    }
+
+    function guardarProductosEnStorage() {
+        try {
+            localStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(PRODUCTOS));
+        } catch (e) {
+            console.error("Error guardando productos en storage", e);
+        }
+    }
+
+    function cargarProductosDesdeStorage() {
+        try {
+            const guardados = JSON.parse(localStorage.getItem(CLAVE_PRODUCTOS) || "[]");
+
+            if (Array.isArray(guardados) && guardados.length > 0) {
+                PRODUCTOS.length = 0;
+                guardados.forEach(p => PRODUCTOS.push(p));
+            }
+        } catch (e) {
+            console.error("Error leyendo productos desde storage", e);
+        }
+    }
+
+    cargarProductosDesdeStorage();
+
