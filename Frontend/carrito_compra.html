@@ -27,7 +27,6 @@
 
                     <!-- Lista de items -->
                     <ul id="listaItemsCarrito" class="list-group mb-4">
-                        <!-- Aquí se inyectan los productos -->
                     </ul>
 
                     <!-- Resumen y acciones -->
@@ -93,7 +92,7 @@
         const disponible  = document.getElementById('disponible');
         const noDisponible= document.getElementById('noDisponible');
 
-        // Función para formatear precio (backup por si acaso)
+        // Función para formatear precio 
         function formatCLP(valor) {
             return "$" + valor.toLocaleString("es-CL");
         }
@@ -145,27 +144,55 @@
             window.location.reload();
         });
 
-        // Validación de stock (simulada)
-        btnValidar.addEventListener('click', () => {
+        // Validación de stock contra el backend
+        btnValidar.addEventListener('click', async () => {
             if (carrito.length === 0) return;
 
-            const disponibleProducto = Math.random() > 0.3; // 70% de probabilidad
+            try {
+                const resp = await fetch("http://localhost:3900/api/productos/validar-disponibilidad", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ items: carrito })
+                });
 
-            if (disponibleProducto) {
-                disponible.classList.remove('d-none');
-                noDisponible.classList.add('d-none');
-                btnPagar.classList.remove('d-none');
-            } else {
+                const data = await resp.json();
+
+                // Si el backend dice que hay disponibilidad
+                if (resp.ok && data.disponible) {
+                    disponible.classList.remove('d-none');
+                    noDisponible.classList.add('d-none');
+                    btnPagar.classList.remove('d-none');
+                } else {
+                    disponible.classList.add('d-none');
+                    noDisponible.classList.remove('d-none');
+                    btnPagar.classList.add('d-none');
+
+                    if (data.mensaje) {
+                        alert(data.mensaje);
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error al validar disponibilidad:", error);
                 disponible.classList.add('d-none');
                 noDisponible.classList.remove('d-none');
                 btnPagar.classList.add('d-none');
+                alert("Ocurrió un error al validar la disponibilidad. Intenta nuevamente.");
             }
         });
 
-        // Ir a pago
-        btnPagar.addEventListener('click', () => {
-            window.location.href = "SeleccionDeEntrega.html"; // o SeleccionDeEntrega.html, según tu flujo
+        btnPagar.addEventListener("click", () => {
+            if (!carrito || carrito.length === 0) {
+                alert("Tu carrito está vacío.");
+                return;
+            }
+
+            // Solo avanzar en el flujo
+            window.location.href = "SeleccionDeEntrega.html";
         });
+
     </script>
 </body>
 </html>

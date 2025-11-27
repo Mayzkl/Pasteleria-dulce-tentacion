@@ -66,33 +66,83 @@
     <script src="carrito.js"></script>
     <script src="usuarios.js"></script>
     <script src="navbar.js"></script>
-    
     <script>
+    document.addEventListener("DOMContentLoaded", async () => {
         // Leer el id desde la URL
         const params = new URLSearchParams(window.location.search);
-        const idProducto = params.get("id") || "frambuesa";
+        const idProducto = params.get("id");
 
-        // Buscar producto en la lista
-        const producto = buscarProductoPorId(idProducto) || PRODUCTOS[0];
+        if (!idProducto) {
+            alert("No se indicó qué producto personalizar.");
+            window.location.href = "catalogo.html";
+            return;
+        }
 
-        // Pintar datos en la vista
-        document.getElementById("imgProducto").src = producto.imagen;
-        document.getElementById("imgProducto").alt = producto.nombre;
-        document.getElementById("tituloProducto").textContent = producto.nombre;
-        document.getElementById("btnPrecio").textContent =
-            "Precio: " + formatearPrecio(producto.precio);
+        try {
+            // Obtener producto desde el backend
+            const resp = await fetch(`http://localhost:3900/api/productos/obtener/${idProducto}`);
+            const data = await resp.json();
 
-        // Click en "Añadir al carrito"
-        document.getElementById("btnAgregarCarrito").addEventListener("click", () => {
-            const tamano  = document.getElementById("selectTamano").value;
-            const relleno = document.getElementById("selectRelleno").value;
-            const mensaje = document.getElementById("inputMensaje").value;
+            if (!resp.ok || data.status !== "success") {
+                alert(data.mensaje || "No se pudo cargar el producto.");
+                window.location.href = "catalogo.html";
+                return;
+            }
 
-            agregarAlCarrito(producto, { tamano, relleno, mensaje });
+            const p = data.producto;
 
-            alert("La torta fue agregada al carrito ");
-            window.location.href = "carrito_compra.html";
-        });
+            // Adaptar al formato que usa carrito.js
+            const producto = {
+                id: p._id,
+                nombre: p.titulo || "Producto sin nombre",
+                precio: p.precio || 0,
+                imagen: p.imagen || ""
+            };
+
+            // Pintar datos en la vista
+            const imgProducto = document.getElementById("imgProducto");
+            const tituloProducto = document.getElementById("tituloProducto");
+            const btnPrecio = document.getElementById("btnPrecio");
+
+            if (imgProducto) {
+                imgProducto.src = producto.imagen || imgProducto.src;
+                imgProducto.alt = producto.nombre;
+            }
+
+            if (tituloProducto) {
+                tituloProducto.textContent = producto.nombre;
+            }
+
+            if (btnPrecio) {
+                if (typeof formatearPrecio === "function") {
+                    btnPrecio.textContent = "Precio: " + formatearPrecio(producto.precio);
+                } else {
+                    btnPrecio.textContent = "Precio: $" + producto.precio;
+                }
+            }
+
+            // Click en "Añadir al carrito"
+            const btnAgregar = document.getElementById("btnAgregarCarrito");
+            if (btnAgregar) {
+                btnAgregar.addEventListener("click", () => {
+                    const tamano  = document.getElementById("selectTamano").value;
+                    const relleno = document.getElementById("selectRelleno").value;
+                    const mensaje = document.getElementById("inputMensaje").value;
+
+                    // Esta función viene de carrito.js (producto + opciones)
+                    agregarAlCarrito(producto, { tamano, relleno, mensaje });
+
+                    alert("La torta fue agregada al carrito");
+                    window.location.href = "carrito_compra.html";
+                });
+            }
+
+        } catch (error) {
+            console.error("Error al cargar producto para personalización:", error);
+            alert("Error al cargar el producto. Intenta nuevamente.");
+            window.location.href = "catalogo.html";
+        }
+    });
     </script>
 </body>
 </html>

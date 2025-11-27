@@ -13,54 +13,66 @@
 
         <div class="row justify-content-center">
             <div class="col-md-7">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title mb-3">Datos de entrega</h5>
 
-                        <div class="mb-3">
-                            <label class="form-label">Nombre del destinatario</label>
-                            <input id="nombreDestinatario" type="text" class="form-control" required>
-                        </div>
+                <!-- FORMULARIO DE ENTREGA -->
+                <form id="formEntrega" novalidate>
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title mb-3">Datos de entrega</h5>
 
-                        <div class="mb-3">
-                            <label class="form-label">Dirección</label>
-                            <input id="direccion" type="text" class="form-control" required>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del destinatario</label>
+                                <input id="nombre" type="text" class="form-control" required>
+                                <div class="invalid-feedback">Ingresa el nombre del destinatario.</div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Comuna</label>
-                            <select id="comuna" class="form-select">
-                                <option value="">Seleccionar...</option>
-                                <option>La Serena</option>
-                                <option>Coquimbo</option>
-                                <option>Otra comuna</option>
-                            </select>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Dirección</label>
+                                <input id="direccion" type="text" class="form-control" required>
+                                <div class="invalid-feedback">Ingresa la dirección de entrega.</div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Fecha de entrega</label>
-                            <input id="fecha" type="date" class="form-control">
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Comuna</label>
+                                <select id="comuna" class="form-select">
+                                    <option disabled selected value="">Seleccionar...</option>
+                                    <option>Santiago Centro</option>
+                                    <option>Providencia</option>
+                                    <option>Las Condes</option>
+                                    <option>Maipú</option>
+                                    <option>Puente Alto</option>
+                                </select>
+                                <div class="invalid-feedback">Selecciona una comuna.</div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Franja horaria</label>
-                            <select id="franja" class="form-select">
-                                <option value="">Seleccionar...</option>
-                                <option>09:00 - 12:00</option>
-                                <option>12:00 - 15:00</option>
-                                <option>15:00 - 18:00</option>
-                            </select>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de entrega</label>
+                                <input id="fecha" type="date" class="form-control" required>
+                                <div class="invalid-feedback">Selecciona una fecha de entrega.</div>
+                            </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Tipo de entrega</label>
-                            <select id="tipoEntrega" class="form-select">
-                                <option value="retiro">Retiro en tienda</option>
-                                <option value="envio">Envío a domicilio</option>
-                            </select>
+                            <div class="mb-3">
+                                <label class="form-label">Franja horaria</label>
+                                <select id="franja" class="form-select" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option>09:00 - 12:00</option>
+                                    <option>12:00 - 15:00</option>
+                                    <option>15:00 - 18:00</option>
+                                </select>
+                                <div class="invalid-feedback">Selecciona una franja horaria.</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de entrega</label>
+                                <select id="tipoEntrega" class="form-select" required>
+                                    <option value="tienda">Retiro en tienda</option>
+                                    <option value="domicilio">Envío a domicilio</option>
+                                </select>
+                                <div class="invalid-feedback">Selecciona el tipo de entrega.</div>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
 
                 <!-- Resumen simple del total -->
                 <div class="card shadow-sm mb-4">
@@ -99,74 +111,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="productos.js"></script>
-    <script src="carrito.js"></script>
     <script src="usuarios.js"></script>
     <script src="navbar.js"></script>
-
-    <script>
-        const CLAVE_ENTREGA = "datos_entrega_dulce_tentacion";
-
-        const carrito = obtenerCarrito();
-
-        const totalProductosEl = document.getElementById('totalProductos');
-        const costoEnvioEl     = document.getElementById('costoEnvio');
-        const totalPedidoEl    = document.getElementById('totalPedido');
-
-        let totalProductos = 0;
-
-        carrito.forEach(item => {
-            totalProductos += item.precio;
-        });
-
-        function formatear(valor) {
-            return "$" + valor.toLocaleString("es-CL");
-        }
-
-        function calcularCostoEnvio(tipoEntrega, comuna) {
-            if (tipoEntrega === "retiro") return 0;
-            if (comuna === "La Serena" || comuna === "Coquimbo") return 3000;
-            return 5000; // otras comunas
-        }
-
-        function actualizarResumen() {
-            const tipoEntrega = document.getElementById('tipoEntrega').value;
-            const comuna = document.getElementById('comuna').value;
-
-            const costoEnvio = calcularCostoEnvio(tipoEntrega, comuna);
-            const totalPedido = totalProductos + costoEnvio;
-
-            totalProductosEl.textContent = formatear(totalProductos);
-            costoEnvioEl.textContent     = formatear(costoEnvio);
-            totalPedidoEl.textContent    = formatear(totalPedido);
-        }
-
-        // Inicial
-        actualizarResumen();
-
-        document.getElementById('tipoEntrega').addEventListener('change', actualizarResumen);
-        document.getElementById('comuna').addEventListener('change', actualizarResumen);
-
-        document.getElementById('btnContinuarPago').addEventListener('click', () => {
-            const datos = {
-                nombreDestinatario: document.getElementById('nombreDestinatario').value,
-                direccion: document.getElementById('direccion').value,
-                comuna: document.getElementById('comuna').value,
-                fecha: document.getElementById('fecha').value,
-                franja: document.getElementById('franja').value,
-                tipoEntrega: document.getElementById('tipoEntrega').value,
-                totalProductos: totalProductos,
-                costoEnvio: calcularCostoEnvio(
-                    document.getElementById('tipoEntrega').value,
-                    document.getElementById('comuna').value
-                )
-            };
-
-            // Guardar en localStorage
-            localStorage.setItem(CLAVE_ENTREGA, JSON.stringify(datos));
-
-            // Ir a pago
-            window.location.href = "PagoElectronico.html";
-        });
-    </script>
+    <script src="SeleccionDeEntrega.js"></script>
 </body>
 </html>

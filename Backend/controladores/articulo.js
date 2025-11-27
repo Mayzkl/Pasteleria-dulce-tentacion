@@ -1,324 +1,151 @@
-const fs = require("fs");
-const path = require("path");
-const { validarArticulo, validarIdArticulo } = require("../util/validar");
+// Backend/controladores/articulo.js
 const Articulo = require("../modelos/Articulo");
 
-
-const crear = (req, res) => {
-
-    let parametros = req.body;
-
+// Crear producto
+const crear = async (req, res) => {
     try {
-        validarArticulo(parametros);
+        const datos = req.body;
 
-    } catch (error) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Faltan datos por enviar"
-        });
-    }
+        const nuevo = new Articulo(datos);
+        await nuevo.save();
 
-    const articulo = new Articulo(parametros);
-
-    articulo.save();
-
-    return res.status(200).json({
-        status: "éxito",
-        articulo: parametros,
-        mensaje: "Artículo creado con éxito!!"
-    })
-
-}
-
-const listar = async (req, res) => {
-
-    try {
-        let consulta = Articulo.find({});
-
-        if (req.params.ultimos) {
-            consulta.limit(req.params.ultimos);
-        }
-
-        let resultado = await consulta.sort({ fecha: -1 });
-
-        if (!resultado) {
-            return res.status(404).json({
-                status: "error",
-                mensaje: "No se han encontrado artículos!!"
-            });
-        } else {
-            return res.status(200).send({
-                status: "éxito",
-                contador: resultado.length,
-                resultado
-            });
-        }
-    } catch (error) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "No se encuentran artículos!!"
-        });
-    }
-}
-
-const listar_uno = async (req, res) => {
-    let id = req.params.id;
-    try {
-        validarIdArticulo(id);
-
-    } catch (error) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Id con formato incorrecto"
-        });
-    }
-
-    try {
-        let resultado = await Articulo.findById(id);
-        if (!resultado) {
-            return res.status(404).json({
-                status: "error",
-                mensaje: "No se han encontrado el artículo"
-            });
-        } else {
-            return res.status(200).json({
-                status: "éxito",
-                resultado
-            });
-        }
-    } catch (error) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "No se han encontrado el artículo"
-        });
-    }
-}
-
-const borrar = async (req, res) => {
-
-    try {
-        let articuloId = req.params.id;
-        validarIdArticulo(articuloId);
-        let resultado = await Articulo.findOneAndDelete({ _id: articuloId });
-
-        if (!resultado) {
-            return res.status(500).json({
-                status: "error",
-                mensaje: "Error al borrar el artículo"
-            });
-        } else {
-            return res.status(200).json({
-                status: "éxito",
-                articulo: resultado,
-                mensaje: "Artículo borrado"
-            });
-        }
-    } catch (error) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "No se ha podido borrar el artículo, posiblemente el formato de ID es incorrecto!!"
-        });
-    }
-}
-
-const editar = async (req, res) => {
-    let articuloId = req.params.id;
-
-    let parametros = req.body;
-
-    try {
-        validarArticulo(parametros);
-        let resultado = await Articulo.findOneAndUpdate({ _id: articuloId }, req.body, { new: true });
-
-        if (!resultado) {
-            return res.status(500).json({
-                status: "error",
-                mensaje: "Error al actualizar el artículo"
-            });
-        } else {
-            return res.status(200).json({
-                status: "éxito",
-                articulo: resultado,
-                mensaje: "Artículo actualizado!!"
-            });
-        }
-
-    } catch (error) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Faltan datos por enviar"
-        });
-    }
-
-}
-
-const subir = async (req, res) => {
-
-    try {
-        if (!req.file && !req.files) {
-            return res.status(404).json({
-                status: "error",
-                mensaje: "Petición invalida"
-            });
-        }
-
-        let archivo = req.file.originalname;
-
-        let archivo_split = archivo.split("\."); 
-
-        let extension = archivo_split[1];
-        if (extension != "png" && extension != "jpg" &&
-            extension != "jpeg" && extension != "gif") {
-            fs.unlink(req.file.path, (error) => {
-                return res.status(400).json({
-                    status: "error",
-                    mensaje: "Imagen invalida"
-                });
-            })
-        } else {
-            let articuloId = req.params.id;
-            let resultado = await Articulo.findOneAndUpdate({ _id: articuloId }, { imagen: req.file.filename }, { new: true });
-            if (!resultado) {
-                return res.status(500).json({
-                    status: "error",
-                    mensaje: "Error al actualizar"
-                });
-            } else {
-                return res.status(200).json({
-                    status: "éxito",
-                    articulo: resultado,
-                    fichero: req.file
-                })
-            }
-
-        }
-    } catch (error) {
-        return res.status(400).json({
-            status: "error",
-            mensaje: "Error al actualizar!"
-        });
-    }
-
-}
-
-const imagen = (req, res) => {
-    let fichero = req.params.fichero;
-    let ruta_fisica = "./imagenes/articulos/" + fichero;
-
-    fs.stat(ruta_fisica, (error, existe) => {
-        if (existe) {
-            return res.sendFile(path.resolve(ruta_fisica));
-        } else {
-            return res.status(404).json({
-                status: "error",
-                mensaje: "La imagen no existe",
-                existe,
-                fichero,
-                ruta_fisica
-            });
-        }
-    })
-}
-
-const buscador = async (req, res) => {
-    let busqueda = req.params.busqueda; 
-    let consulta = Articulo.find({
-        "$or": [
-            { "titulo": { "$regex": busqueda, "$options": "i" } },
-            { "contenido": { "$regex": busqueda, "$options": "i" } },
-        ]
-    });
-
-    let resultado = await consulta.sort({ fecha: -1 });
-
-
-    if (!resultado || resultado.length <= 0) {
-        return res.status(404).json({
-            status: "error",
-            mensaje: "No se han encontrado artículos"
-        });
-    }
-    else {
-
-        return res.status(200).json({
-            status: "éxito",
-            articulos: resultado
-        });
-    }
-
-}
-
-const editarArticulo = async (req, res) => {
-    try {
-        const articuloId = req.params.id;
-        const nuevosDatos = req.body;
-
-        const articuloExistente = await Articulo.findById(articuloId);
-        if (!articuloExistente) {
-            return res.status(404).json({
-                status: "error",
-                mensaje: "No se encontró el artículo a editar"
-            });
-        }
-
-        const articuloActualizado = await Articulo.findByIdAndUpdate(
-            articuloId,
-            nuevosDatos,
-            { new: true } 
-        );
-
-        return res.status(200).json({
-            status: "éxito",
-            mensaje: "Artículo actualizado correctamente",
-            articulo: articuloActualizado
+        return res.status(201).json({
+            status: "success",
+            mensaje: "Producto creado correctamente",
+            producto: nuevo
         });
 
     } catch (error) {
-        return res.status(400).json({
+        console.error(error);
+        return res.status(500).json({
             status: "error",
-            mensaje: "Error al actualizar el artículo",
-            error: error.message
+            mensaje: "Error interno al crear producto"
         });
     }
 };
 
-const eliminarArticulo = async (req, res) => {
+// Listar productos
+const listar = async (req, res) => {
     try {
-        const articuloId = req.params.id;
+        const productos = await Articulo.find().sort({ fecha: -1 });
 
-        const articuloEliminado = await Articulo.findByIdAndDelete(articuloId);
+        return res.status(200).json({
+            status: "success",
+            productos
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al listar productos"
+        });
+    }
+};
 
-        if (!articuloEliminado) {
+// Obtener producto por ID
+const obtener = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const producto = await Articulo.findById(id);
+
+        if (!producto) {
             return res.status(404).json({
                 status: "error",
-                mensaje: "No se encontró el artículo a eliminar"
+                mensaje: "Producto no encontrado"
             });
         }
 
         return res.status(200).json({
-            status: "éxito",
-            mensaje: "Artículo eliminado correctamente",
-            articulo: articuloEliminado
+            status: "success",
+            producto
         });
 
     } catch (error) {
         return res.status(500).json({
             status: "error",
-            mensaje: "Error al eliminar el artículo",
-            error: error.message
+            mensaje: "Error al obtener producto"
         });
     }
 };
 
+// Editar producto
+const editar = async (req, res) => {
+    const id = req.params.id;
+    const cambios = req.body;
+
+    try {
+        const producto = await Articulo.findByIdAndUpdate(id, cambios, { new: true });
+
+        return res.status(200).json({
+            status: "success",
+            mensaje: "Producto actualizado",
+            producto
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al editar producto"
+        });
+    }
+};
+
+// Eliminar producto
+const eliminar = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        await Articulo.findByIdAndDelete(id);
+
+        return res.status(200).json({
+            status: "success",
+            mensaje: "Producto eliminado"
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            status: "error",
+            mensaje: "Error al eliminar producto"
+        });
+    }
+};
+
+// Validar disponibilidad de los productos del carrito
+const validar_disponibilidad = async (req, res) => {
+    try {
+        const { items } = req.body;
+
+        if (!Array.isArray(items) || items.length === 0) {
+            return res.status(400).json({
+                status: "error",
+                mensaje: "No se han enviado productos para validar."
+            });
+        }
+
+        // Aquí podrías consultar stock real por producto.
+        // Por ahora asumimos que todo está OK.
+        return res.status(200).json({
+            status: "success",
+            disponible: true,
+            mensaje: "Todos los productos están disponibles para tu pedido."
+        });
+    } catch (error) {
+        console.error("Error al validar disponibilidad:", error);
+        return res.status(500).json({
+            status: "error",
+            disponible: false,
+            mensaje: "Error interno al validar disponibilidad."
+        });
+    }
+};
+
+
 module.exports = {
     crear,
     listar,
-    listar_uno,
-    borrar,
+    obtener,
     editar,
-    subir,
-    imagen,
-    buscador,
-    editarArticulo,
-    eliminarArticulo
-}
+    eliminar,
+    validar_disponibilidad
+};

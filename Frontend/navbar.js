@@ -1,9 +1,7 @@
-// navbar.js
 document.addEventListener("DOMContentLoaded", () => {
     const contenedor = document.getElementById("navbar-container");
     if (!contenedor) return;
 
-    // 1. navbar base
     contenedor.innerHTML = `
     <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container">
@@ -21,16 +19,17 @@ document.addEventListener("DOMContentLoaded", () => {
     </nav>
     `;
 
-    // 2. navabar si hay sesion activa
     const navRight = document.getElementById("navbar-right");
-    const usuario  = typeof obtenerUsuarioActual === "function"
+    // Usuario actual usando usuarios.js
+    const usuario = (typeof obtenerUsuarioActual === "function")
         ? obtenerUsuarioActual()
         : null;
 
     if (usuario) {
+        // Usuario logueado
         let items = `
             <li class="nav-item">
-                <span class="nav-link disabled">Hola, ${usuario.nombre}</span>
+                <span class="nav-link disabled">Hola, ${usuario.nombre || "Usuario"}</span>
             </li>
             <li class="nav-item">
                 <a id="linkCerrarSesion" class="nav-link" href="#">Cerrar sesión</a>
@@ -43,8 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
             </li>
         `;
 
-        // Solo el admin ve estas opciones en el navbar
-        if (usuario.correo === "admin@dulcetentacion.cl") {
+        const esAdmin = usuario.email === "admin@dulcetentacion.cl";
+
+        if (esAdmin) {
             items += `
                 <li class="nav-item">
                     <a class="nav-link" href="AdministracionDeProductos.html">Administración</a>
@@ -55,16 +55,24 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
 
-
         navRight.innerHTML = items;
 
-        document.getElementById("linkCerrarSesion").addEventListener("click", (e) => {
-            e.preventDefault();
-            cerrarSesion();
-            window.location.href = "index.html";
-        });
+        // Logout: borrar sesión y redirigir al login
+        const linkCerrarSesion = document.getElementById("linkCerrarSesion");
+        if (linkCerrarSesion) {
+            linkCerrarSesion.addEventListener("click", (e) => {
+                e.preventDefault();
+                if (typeof cerrarSesion === "function") {
+                    cerrarSesion();
+                } else {
+                    localStorage.removeItem("usuario_dulce_tentacion");
+                }
+                window.location.href = "login.html";
+            });
+        }
 
     } else {
+        // Usuario NO logueado
         navRight.innerHTML = `
             <li class="nav-item">
                 <a class="nav-link" href="catalogo.html">Catálogo</a>
@@ -80,5 +88,4 @@ document.addEventListener("DOMContentLoaded", () => {
             </li>
         `;
     }
-
 });

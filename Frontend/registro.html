@@ -32,7 +32,7 @@
                     <input type="password" class="form-control" id="password2" placeholder="********" required>
                     <div class="invalid-feedback">Las contraseñas no coinciden.</div>
                 </div>
-                <button type="submit" onclick="setTimeout(function() {window.location.href='login.html';}, 2000)">Registrarse</button>
+                <button type="submit" class="btn btn-primary w-100">Registrarse</button>
                 <p id="msgRegistro"></p>
             </form>
         </div>
@@ -60,13 +60,14 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="usuarios.js"></script>
     <script src="navbar.js"></script>
-    
     <script>
     document.addEventListener("DOMContentLoaded", () => {
         const form = document.getElementById("formRegistro");
         const msg  = document.getElementById("msgRegistro");
+        const modal = new bootstrap.Modal(document.getElementById("registroExitoso"));
+        const btnContinuar = document.getElementById("btnContinuar");
 
-        form.addEventListener("submit", (e) => {
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             const nombre  = document.getElementById("nombre").value.trim();
@@ -74,26 +75,61 @@
             const pass1   = document.getElementById("password").value.trim();
             const pass2   = document.getElementById("password2").value.trim();
 
+            // Validaciones básicas
             if (!nombre || !correo || !pass1 || !pass2) {
                 msg.textContent = "Completa todos los campos.";
-                msg.className = "mt-2 text-danger";
+                msg.className   = "mt-2 text-danger";
+                return;
+            }
+
+            if (pass1.length < 8) {
+                msg.textContent = "La contraseña debe tener al menos 8 caracteres.";
+                msg.className   = "mt-2 text-danger";
                 return;
             }
 
             if (pass1 !== pass2) {
                 msg.textContent = "Las contraseñas no coinciden.";
-                msg.className = "mt-2 text-danger";
+                msg.className   = "mt-2 text-danger";
                 return;
             }
 
             try {
-                registrarUsuario({ nombre, correo, password: pass1 });
+                const resp = await fetch("http://localhost:3900/api/crearUsuario", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        email: correo,
+                        password: pass1
+                    })
+                });
+
+                const data = await resp.json();
+
+                if (!resp.ok || data.status !== "success") {
+                    msg.textContent = data.mensaje || "No se pudo registrar el usuario.";
+                    msg.className   = "mt-2 text-danger";
+                    return;
+                }
+
+                // Registro OK
                 msg.textContent = "Registro exitoso. Ahora puedes iniciar sesión.";
-                msg.className = "mt-2 text-success";
+                msg.className   = "mt-2 text-success";
                 form.reset();
-            } catch (err) {
-                msg.textContent = err.message;
-                msg.className = "mt-2 text-danger";
+
+                // Mostrar modal y luego ir al login
+                modal.show();
+                btnContinuar.onclick = () => {
+                    window.location.href = "login.html";
+                };
+
+            } catch (error) {
+                console.error(error);
+                msg.textContent = "Error al conectar con el servidor.";
+                msg.className   = "mt-2 text-danger";
             }
         });
     });

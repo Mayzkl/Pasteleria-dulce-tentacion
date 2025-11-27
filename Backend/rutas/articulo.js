@@ -18,24 +18,13 @@ const almacenamiento = multer.diskStorage({
 
 const subidas = multer({storage: almacenamiento});
 
-router.post("/crear", ArticuloControlador.crear);
-router.get("/articulos", ArticuloControlador.listar);
-router.get("/articulos/:ultimos", ArticuloControlador.listar);
-router.get("/articulo/:id", ArticuloControlador.listar_uno);
-router.delete("/articulo/:id", ArticuloControlador.borrar);
-router.put("/articulo/:id", ArticuloControlador.editar);
-router.post("/subir-imagen/:id", subidas.single("file0"), ArticuloControlador.subir);
-router.get("/imagen/:fichero", ArticuloControlador.imagen);
-router.get("/buscar/:busqueda", ArticuloControlador.buscador);
-router.delete("/articulo/:id", ArticuloControlador.eliminarArticulo);
-router.put("/articulo/:id", ArticuloControlador.editarArticulo);
-
+// Rutas Artículo
 router.post("/crearUsuario", UsuarioControlador.crear_usuario);
 router.get("/listarUsuarios", UsuarioControlador.listar_usuario);
 router.get("/listarUsuario/:nombre", UsuarioControlador.listar_un_usuario);
 router.post("/borrarUsuario/:id", UsuarioControlador.borrar_usuario);
 router.post("/editarUsuario/:id", UsuarioControlador.editar_usuario);
-
+router.post("/login", UsuarioControlador.login_usuario);
 module.exports = router;
 
 

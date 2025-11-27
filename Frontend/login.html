@@ -55,35 +55,69 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const form = document.getElementById("formLogin");
-        const msg  = document.getElementById("msgLogin");
+        const form   = document.getElementById("formLogin");
+        const msg    = document.getElementById("msgLogin");
+        const modal  = new bootstrap.Modal(document.getElementById("loginExitoso"));
+        const btnIr  = document.getElementById("btnContinuar");
 
-        form.addEventListener("submit", (e) => {
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            const correo = document.getElementById("correoLogin").value.trim();
-            const pass   = document.getElementById("passwordLogin").value.trim();
+            const email = document.getElementById("correoLogin").value.trim();
+            const pass  = document.getElementById("passwordLogin").value.trim();
 
-            if (!correo || !pass) {
+            if (!email || !pass) {
                 msg.textContent = "Ingresa correo y contraseña.";
-                msg.className = "mt-2 text-danger";
+                msg.className   = "mt-2 text-danger";
                 return;
             }
 
             try {
-                const usuario = iniciarSesion(correo, pass);
-                msg.textContent = "Inicio de sesión exitoso.";
-                msg.className = "mt-2 text-success";
+                const resp = await fetch("http://localhost:3900/api/login", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ email, password: pass })
+                });
 
-                setTimeout(() => {
+                // Si el servidor respondió pero con error (401, 400, etc.)
+                if (!resp.ok) {
+                    let data = null;
+                    try {
+                        data = await resp.json();
+                    } catch (e) {
+                    }
+
+                    msg.textContent = (data && data.mensaje) || "Error en login.";
+                    msg.className   = "mt-2 text-danger";
+                    return;
+                }
+
+                // Respuesta correcta (200)
+                const data = await resp.json();
+
+                // Guardar usuario en localStorage usando la función del usuarios.js
+                guardarSesion(data.usuario);
+
+                msg.textContent = "Inicio de sesión exitoso.";
+                msg.className   = "mt-2 text-success";
+
+                // Mostrar modal y redirigir al catálogo
+                modal.show();
+                btnIr.onclick = () => {
                     window.location.href = "index.html";
-                }, 800);
-            } catch (err) {
-                msg.textContent = err.message;
-                msg.className = "mt-2 text-danger";
+                };
+
+
+            } catch (error) {
+                console.error(error);
+                msg.textContent = "Error al conectar con el servidor (¿backend apagado o URL incorrecta?).";
+                msg.className   = "mt-2 text-danger";
             }
         });
     });
     </script>
+
 </body>
 </html>

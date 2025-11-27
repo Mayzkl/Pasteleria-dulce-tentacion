@@ -8,12 +8,10 @@ const ArticuloSchema = Schema({
     tamaño: {
         type: String,
         enum: ["10 personas", "15 personas", "20 personas"],
-        required: true
     },
     relleno: {
         type: String,
         enum: ["Manjar", "Crema", "Chocolate"],
-        required: true
     },
     mensaje: {
         type: String,
@@ -31,7 +29,11 @@ const ArticuloSchema = Schema({
     fecha_creacion: {
         type: Date,
         default: Date.now,
-    }
+    },
+    destacado: {
+    type: Boolean,
+    default: false
+}
 });
 
 module.exports = model("Articulo", ArticuloSchema, "articulos");

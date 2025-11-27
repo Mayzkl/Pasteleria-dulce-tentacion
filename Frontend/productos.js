@@ -1,108 +1,82 @@
-// Lista base de productos disponibles en el sitio
-const PRODUCTOS = [
-    {
-        id: "selva",
-        nombre: "Torta Selva Negra",
-        precio: 19990,
-        imagen: "https://www.paulinacocina.net/wp-content/uploads/2022/04/selva-negra-receta-1.jpg.webp",
-        descripcionCorta: "Clásica y esponjosa, rellena de cerezas y crema batida.",
-        descripcionLarga: "Capas de bizcocho de chocolate, cerezas y crema batida, ideal para celebraciones clásicas.",
-        esFavorito: true,
-        esDestacado: true,
-        etiquetaDestacado: "Clásico de la casa"
-    },
-    {
-        id: "tresleches",
-        nombre: "Torta Tres Leches",
-        precio: 22990,
-        imagen: "https://www.pasteleriaelparron.cl/wp-content/uploads/2023/08/Tres-Leches-2024.png",
-        descripcionCorta: "Suave, húmeda y perfecta para cualquier celebración.",
-        descripcionLarga: "Bizcocho bañado en mezcla de tres leches, decorado con crema y detalles de chocolate.",
-        esFavorito: true,
-        esDestacado: true,
-        etiquetaDestacado: "Recomendada del chef"
-    },
-    {
-        id: "frambuesa",
-        nombre: "Torta Frambuesa",
-        precio: 21990,
-        imagen: "https://velvetbakery.cl/cdn/shop/products/MerengueFrambuesaCSh.jpg?v=1666199845",
-        descripcionCorta: "Relleno de manjar y frambuesas frescas, nuestra favorita.",
-        descripcionLarga: "Torta de bizcocho de vainilla con manjar y frambuesas frescas, terminada con crema suave.",
-        esFavorito: true,
-        esDestacado: true,
-        etiquetaDestacado: "Más vendida"
-    },
-    {
-        id: "milhojas",
-        nombre: "Torta Milhojas",
-        precio: 18990,
-        imagen: "https://cdn0.recetasgratis.net/es/posts/8/0/2/torta_milhojas_24208_orig.jpg",
-        descripcionCorta: "Láminas crujientes de hojaldre rellenas de manjar.",
-        descripcionLarga: "Capas de masa de milhojas horneada y manjar casero, espolvoreada con azúcar flor.",
-        esFavorito: false,
-        esDestacado: false,
-        etiquetaDestacado: ""
-    },
-    {
-        id: "durazno",
-        nombre: "Torta Durazno-Manjar",
-        precio: 20990,
-        imagen: "https://media.falabella.com/tottusCL/20248718_1/w=800,h=800,fit=pad",
-        descripcionCorta: "Bizcocho suave con manjar y duraznos en conserva.",
-        descripcionLarga: "Torta fresca y cremosa, rellena de manjar y láminas de durazno en conserva.",
-        esFavorito: false,
-        esDestacado: false,
-        etiquetaDestacado: ""
-    },
-    {
-        id: "chocolate",
-        nombre: "Torta de Chocolate",
-        precio: 23990,
-        imagen: "https://mozart.cl/wp-content/uploads/2025/05/12_MIF_1936_Torta_Manjar_Chantilly_Durazno_1080x1080.jpg",
-        descripcionCorta: "Bizcocho húmedo con ganache de chocolate.",
-        descripcionLarga: "Torta intensa de cacao, con relleno y cobertura de ganache de chocolate.",
-        esFavorito: false,
-        esDestacado: false,
-        etiquetaDestacado: ""
-    }
-    ];
+// productos.js  (catálogo del cliente, conectado al backend)
 
-    function buscarProductoPorId(id) {
-    return PRODUCTOS.find(p => p.id === id);
-    }
+const URL_API_PRODUCTOS = "http://localhost:3900/api/productos";
 
+// Helper global para formatear precios (lo usan catálogo y carrito)
+if (typeof formatearPrecio === "undefined") {
     function formatearPrecio(valor) {
-    return "$" + valor.toLocaleString("es-CL");
+        return "$" + (valor || 0).toLocaleString("es-CL");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    cargarCatalogoCliente();
+});
+
+// Cargar productos del backend y mostrarlos al cliente
+async function cargarCatalogoCliente() {
+    const grid = document.getElementById("gridCatalogo");
+    if (!grid) {
+        console.error("No se encontró el contenedor gridCatalogo");
+        return;
     }
 
-    const CLAVE_PRODUCTOS = "productos_dulce_tentacion";
+    try {
+        const resp = await fetch(`${URL_API_PRODUCTOS}/listar`);
+        const data = await resp.json();
 
-    // Devolver siempre la misma referencia
-    function obtenerProductos() {
-        return PRODUCTOS;
-    }
-
-    function guardarProductosEnStorage() {
-        try {
-            localStorage.setItem(CLAVE_PRODUCTOS, JSON.stringify(PRODUCTOS));
-        } catch (e) {
-            console.error("Error guardando productos en storage", e);
+        if (data.status !== "success") {
+            grid.innerHTML = `<p class="text-center text-danger">No se pudieron cargar los productos.</p>`;
+            return;
         }
-    }
 
-    function cargarProductosDesdeStorage() {
-        try {
-            const guardados = JSON.parse(localStorage.getItem(CLAVE_PRODUCTOS) || "[]");
+        const productos = data.productos || [];
 
-            if (Array.isArray(guardados) && guardados.length > 0) {
-                PRODUCTOS.length = 0;
-                guardados.forEach(p => PRODUCTOS.push(p));
-            }
-        } catch (e) {
-            console.error("Error leyendo productos desde storage", e);
+        if (productos.length === 0) {
+            grid.innerHTML = `<p class="text-center text-muted">No hay productos disponibles por el momento.</p>`;
+            return;
         }
+
+        grid.innerHTML = "";
+
+        productos.forEach((p) => {
+            const titulo = p.titulo || "Producto sin nombre";
+            const descripcion = p.descripcion || p.relleno || "";
+            const precio = p.precio || 0;
+            const imagen = p.imagen || "";
+            const categoria = p.categoria || "";
+
+            grid.innerHTML += `
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100 shadow-sm">
+                        ${
+                            imagen
+                                ? `<img src="${imagen}" class="card-img-top" alt="${titulo}">`
+                                : ``
+                        }
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">${titulo}</h5>
+                            ${
+                                categoria
+                                    ? `<span class="badge bg-secondary mb-2">${categoria}</span>`
+                                    : ``
+                            }
+                            <p class="card-text small flex-grow-1">${descripcion}</p>
+                            <p class="fw-bold text-success mt-2">${formatearPrecio(precio)}</p>
+                            <button 
+                                class="btn btn-primary mt-2"
+                                onclick="window.location.href='personalizacion.html?id=${p._id}'"
+                            >
+                                Personalizar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Error al cargar catálogo", error);
+        grid.innerHTML = `<p class="text-center text-danger">Error al conectar con el servidor.</p>`;
     }
-
-    cargarProductosDesdeStorage();
-
+}

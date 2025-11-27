@@ -21,7 +21,7 @@
                         <p id="resumenTotal" class="fw-bold"mb-0></p>
                     </div>
                 </div>
-                <!-- Formulario de pago (Simulado por el momento) -->
+                <!-- Formulario de pago -->
                 <div class="card shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title mb-3">Datos de tarjeta</h5>
@@ -65,10 +65,7 @@
             </div>
         </div>
     </div>
-
-
-        
-
+    
     <footer class="text-center py-3 bg-dark text-light mt-auto">
         <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
     </footer>
@@ -81,72 +78,90 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
-        const CLAVE_ENTREGA = "datos_entrega_dulce_tentacion";
-        const CLAVE_ORDEN   = "orden_dulce_tentacion";
-        const CLAVE_CARRITO = "carrito_dulce_tentacion";
-        const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion"; 
+        // Claves de localStorage
+        const CLAVE_ENTREGA   = "entrega_dulce_tentacion";      // <-- ahora coincide con SeleccionDeEntrega
+        const CLAVE_CARRITO   = "carrito_dulce_tentacion";
+        const CLAVE_ORDEN     = "orden_dulce_tentacion";
+        const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion";
 
-        const datosEntrega = JSON.parse(localStorage.getItem(CLAVE_ENTREGA) || "{}");
+        // Leer datos de entrega
+        const entrega = JSON.parse(localStorage.getItem(CLAVE_ENTREGA) || "{}");
 
+        // Leer carrito
+        let carrito = [];
+        try {
+            if (typeof obtenerCarrito === "function") {
+                carrito = obtenerCarrito();
+            } else {
+                carrito = JSON.parse(localStorage.getItem(CLAVE_CARRITO) || "[]");
+            }
+        } catch (e) {
+            console.error("Error leyendo carrito:", e);
+            carrito = [];
+        }
+
+        // Helper para formatear precios
         function formatear(valor) {
             return "$" + (valor || 0).toLocaleString("es-CL");
         }
 
-        const resumenEntrega = document.getElementById('resumenEntrega');
-        const resumenTotal   = document.getElementById('resumenTotal');
+        // Calcular totales
+        const totalProductos = carrito.reduce(
+            (acc, item) => acc + (item.subtotal || item.precio || 0),
+            0
+        );
+        const costoEnvio = entrega.costoEnvio || 0;
+        const total = totalProductos + costoEnvio;
 
-        const total = (datosEntrega.totalProductos || 0) + (datosEntrega.costoEnvio || 0);
+        // Pintar resumen en pantalla
+        const resumenEntregaEl = document.getElementById("resumenEntrega");
+        const resumenTotalEl   = document.getElementById("resumenTotal");
 
-        if (resumenEntrega) {
-            resumenEntrega.textContent =
-                `Entrega para ${datosEntrega.nombreDestinatario || "(sin nombre)"} en ` +
-                `${datosEntrega.direccion || "(sin dirección)"}, ${datosEntrega.comuna || ""}. ` +
-                `Fecha: ${datosEntrega.fecha || "-"} (${datosEntrega.franja || "-"})`;
+        if (resumenEntregaEl) {
+            const tipoTxt =
+                entrega.tipoEntrega === "envio"
+                    ? "Envío a domicilio"
+                    : "Retiro en tienda";
+
+            resumenEntregaEl.textContent =
+                `Entrega para ${entrega.nombreDestinatario || "(sin nombre)"} ` +
+                `en ${entrega.direccion || "(sin dirección)"}, ${entrega.comuna || ""}. ` +
+                `Fecha: ${entrega.fechaEntrega || "-"} (${entrega.franjaEntrega || "-"}) — ${tipoTxt}`;
         }
 
-        if (resumenTotal) {
-            resumenTotal.textContent =
-                `Total a pagar: ${formatear(total)} (incluye envío: ${formatear(datosEntrega.costoEnvio || 0)})`;
+        if (resumenTotalEl) {
+            resumenTotalEl.textContent =
+                `Total a pagar: ${formatear(total)} ` +
+                `(incluye envío: ${formatear(costoEnvio)})`;
         }
 
-        const btnConfirmarPago = document.getElementById('btnConfirmarPago');
-        const mensajeError     = document.getElementById('mensajeError');
+        // --- Lógica de pago simulado ---
+        const btnConfirmarPago = document.getElementById("btnConfirmarPago");
+        const mensajeError     = document.getElementById("mensajeError");
 
         if (!btnConfirmarPago) {
             console.error("No se encontró el botón con id='btnConfirmarPago'. Revisa el HTML.");
             return;
         }
 
-        btnConfirmarPago.addEventListener('click', () => {
-            const tarjeta = document.getElementById('tarjeta').value.trim();
-            const venc    = document.getElementById('vencimiento').value.trim();
-            const cvv     = document.getElementById('cvv').value.trim();
-            const titular = document.getElementById('titular').value.trim();
+        btnConfirmarPago.addEventListener("click", () => {
+            const tarjeta = document.getElementById("tarjeta").value.trim();
+            const venc    = document.getElementById("vencimiento").value.trim();
+            const cvv     = document.getElementById("cvv").value.trim();
+            const titular = document.getElementById("titular").value.trim();
 
+            // Validación básica del formulario de tarjeta
             if (!tarjeta || !venc || !cvv || !titular) {
                 if (mensajeError) {
-                    mensajeError.classList.remove('d-none');
+                    mensajeError.classList.remove("d-none");
                 }
                 return;
             }
             if (mensajeError) {
-                mensajeError.classList.add('d-none');
+                mensajeError.classList.add("d-none");
             }
 
-            // --- carrito ---
-            let carrito = [];
-            try {
-                if (typeof obtenerCarrito === "function") {
-                    carrito = obtenerCarrito();
-                } else {
-                    carrito = JSON.parse(localStorage.getItem(CLAVE_CARRITO) || "[]");
-                }
-            } catch (e) {
-                console.error("Error leyendo carrito:", e);
-                carrito = [];
-            }
-
-            // número de orden
+            // Generar número de orden simulado
             const numeroOrden = "DT-" + Math.floor(100000 + Math.random() * 900000);
 
             const orden = {
@@ -154,23 +169,28 @@
                 total: total,
                 fechaCreacion: new Date().toISOString(),
                 estado: "Pagada",
-                entrega: datosEntrega,
+                entrega: entrega,
                 productos: carrito
             };
 
+            // Guardar orden actual
             localStorage.setItem(CLAVE_ORDEN, JSON.stringify(orden));
 
+            // (Opcional) Guardar también como "último pedido" para reutilizar en boleta / anulación
+            localStorage.setItem("ultimo_pedido_dulce_tentacion", JSON.stringify(orden));
+
+            // Guardar en historial
             const historialActual = JSON.parse(localStorage.getItem(CLAVE_HISTORIAL) || "[]");
             historialActual.push(orden);
             localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historialActual));
 
-            //Limpiar carrito
+            // Limpiar carrito
             localStorage.removeItem(CLAVE_CARRITO);
 
+            // Ir a la boleta
             window.location.href = "BoletaDigital.html";
         });
     });
     </script>
-
 </body>
 </html>

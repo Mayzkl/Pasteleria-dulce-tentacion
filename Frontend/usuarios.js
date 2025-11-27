@@ -1,47 +1,29 @@
-// Claves de almacenamiento
-const CLAVE_USUARIOS = "usuarios_dulce_tentacion";
-const CLAVE_SESION   = "sesion_dulce_tentacion";
+// ==== Claves de almacenamiento ====
+const CLAVE_USUARIOS        = "usuarios_dulce_tentacion";   // si lo usas para registrar usuarios
+const CLAVE_USUARIO_SESION  = "usuario_dulce_tentacion";    // <--- clave única de sesión
 
-function cargarUsuarios() {
-    const data = localStorage.getItem(CLAVE_USUARIOS);
-    return data ? JSON.parse(data) : [];
+// ==== Manejo de sesión ====
+
+// Guarda el usuario logueado
+function guardarSesion(usuario) {
+    if (!usuario) return;
+    localStorage.setItem(CLAVE_USUARIO_SESION, JSON.stringify(usuario));
 }
 
-function guardarUsuarios(usuarios) {
-    localStorage.setItem(CLAVE_USUARIOS, JSON.stringify(usuarios));
-}
-
-function registrarUsuario({ nombre, correo, password }) {
-    const usuarios = cargarUsuarios();
-
-    const existe = usuarios.some(u => u.correo === correo);
-    if (existe) {
-        throw new Error("El correo ya está registrado.");
-    }
-
-    usuarios.push({ nombre, correo, password });
-    guardarUsuarios(usuarios);
-}
-
-function iniciarSesion(correo, password) {
-    const usuarios = cargarUsuarios();
-    const usuario = usuarios.find(
-        u => u.correo === correo && u.password === password
-    );
-
-    if (!usuario) {
-        throw new Error("Correo o contraseña incorrectos.");
-    }
-
-    localStorage.setItem(CLAVE_SESION, JSON.stringify(usuario));
-    return usuario;
-}
-
-function cerrarSesion() {
-    localStorage.removeItem(CLAVE_SESION);
-}
-
+// Obtiene el usuario actual desde localStorage
 function obtenerUsuarioActual() {
-    const data = localStorage.getItem(CLAVE_SESION);
-    return data ? JSON.parse(data) : null;
+    const json = localStorage.getItem(CLAVE_USUARIO_SESION);
+    if (!json) return null;
+
+    try {
+        return JSON.parse(json);
+    } catch (e) {
+        console.error("Error al parsear usuario en sesión:", e);
+        return null;
+    }
+}
+
+// Cierra sesión
+function cerrarSesion() {
+    localStorage.removeItem(CLAVE_USUARIO_SESION);
 }

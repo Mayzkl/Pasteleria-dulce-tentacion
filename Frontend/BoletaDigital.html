@@ -1,73 +1,79 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="UTF-8">
-    <title>Boleta digital</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="estilos.css" rel="stylesheet">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Boleta de compra</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="estilos.css" rel="stylesheet">
+    </head>
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
     <div id="navbar-container"></div>
-    <div class="container my-5 text-center">
-        <h2 class="mb-4 fw-bold">Boleta electrónica</h2>
 
+    <main class="container my-5 flex-fill">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <!--Datos de la boleta-->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between">
-                            <div>
-                                <h5 class="card-title mb-1">Dulce Tentacion</h5>
-                                <small class="text-muted">Pasteleria online</small>
-                            </div>
-                            <div class="text-end">
-                                <p id="numeroBoleta" class="fw-bold mb-0">Boleta N°</p>
-                                <small id="fechaBoleta" class="text-muted"></small>
-                            </div>
+            <div class="col-md-8">
+
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-0">Boleta electrónica</h5>
+                            <small>Dulce Tentación</small>
                         </div>
-                        <hr>
-                        <p id="datosCliente" class="mb-1"></p>
-                        <p id="datosEntrega" class="mb-0 text-muted"></p>
+                        <div class="text-end">
+                            <small class="d-block">N° pedido: <span id="numPedido">-</span></small>
+                            <small class="d-block">Fecha: <span id="fechaPedido">-</span></small>
+                        </div>
                     </div>
-                </div>
-                
-                <!--Detalle productos-->
-                <div class="card shadow-sm mb-4">
-                    <div class=" card-body">
-                        <h5 class="card-title mb-3">Detalle de la compra</h5>
+
+                    <div class="card-body">
+
+                        <h6 class="fw-bold">Datos del cliente</h6>
+                        <p class="mb-1">
+                            Nombre: <span id="clienteNombre">(no registrado)</span><br>
+                            Correo: <span id="clienteEmail">(no registrado)</span>
+                        </p>
+                        <hr>
+
+                        <h6 class="fw-bold">Detalle de la compra</h6>
                         <div class="table-responsive">
                             <table class="table table-sm align-middle">
                                 <thead>
                                     <tr>
                                         <th>Producto</th>
-                                        <th class="text-center">tamaño</th>
-                                        <th>Mensaje</th>
+                                        <th>Personalización</th>
                                         <th class="text-end">Precio</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tablaProductos">
-                                    <!--Items carrito-->
+                                <tbody id="detalleBoleta">
+                                    <!-- filas desde JS -->
                                 </tbody>
                             </table>
                         </div>
-                        <div class="d-flex flex-column align-items-end mt-3">
-                            <p id="subtotalBoleta" class="mb-1">Subtotal: $0</p>
-                            <p id="envioBoleta" class="mb-1">Envio: $0</p>
-                            <p id="totalBoleta" class="fw-bold mb-0">Total: $0</p>
+
+                        <div class="d-flex justify-content-end">
+                            <div class="text-end">
+                                <p class="mb-1"><strong>Total:</strong> <span id="totalBoleta">$0</span></p>
+                            </div>
                         </div>
+
+                        <hr>
+                        <p class="small text-muted mb-0">
+                            Gracias por tu compra. Tu pedido será preparado según la disponibilidad indicada.
+                            Conserva esta boleta como comprobante.
+                        </p>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between">
-                    <button class="btn btn-outline-secondary" onclick="window.location.href='index.html'">Volver al inicio</button>
-                    <button class="btn btn-primary" onclick="window.location.href='Seguimiento.html'">Ver seguimiento del pedido</button>
+                <div class="mt-3 d-flex justify-content-between">
+                    <a href="catalogo.html" class="btn btn-outline-secondary">Volver al catálogo</a>
+                    <a href="AnularCompra.html" class="btn btn-danger">Anular este pedido</a>
+                    <a href="index.html" class="btn btn-primary">Ir al inicio</a>
                 </div>
+
             </div>
         </div>
-    </div>    
+    </main>
 
-    <!-- Footer -->
     <footer class="text-center py-3 bg-dark text-light mt-auto">
         <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
     </footer>
@@ -77,64 +83,122 @@
     <script src="navbar.js"></script>
 
     <script>
-        const CLAVE_ORDEN   = "orden_dulce_tentacion";
-        const CLAVE_ENTREGA = "datos_entrega_dulce_tentacion";
+    const CLAVE_ORDEN = "orden_dulce_tentacion";   // misma clave que en PagoElectronico
 
-        const orden        = JSON.parse(localStorage.getItem(CLAVE_ORDEN)   || "{}");
-        const datosEntrega = orden.entrega || JSON.parse(localStorage.getItem(CLAVE_ENTREGA) || "{}");
+    function formatearPrecio(valor) {
+        return "$" + (valor || 0).toLocaleString("es-CL");
+    }
 
-        // 👇 AHORA LOS PRODUCTOS SALEN DE LA ORDEN
-        const carrito = orden.productos || [];
+    document.addEventListener("DOMContentLoaded", () => {
+        const numPedidoEl     = document.getElementById("numPedido");
+        const fechaPedidoEl   = document.getElementById("fechaPedido");
+        const clienteNombreEl = document.getElementById("clienteNombre");
+        const clienteEmailEl  = document.getElementById("clienteEmail");
+        const detalleBoletaEl = document.getElementById("detalleBoleta");
+        const totalBoletaEl   = document.getElementById("totalBoleta");
 
-        function formatear(valor) {
-            return "$" + (valor || 0).toLocaleString("es-CL");
+        // 1) Leer la orden. Si por alguna razón no está, intentar con "ultimo_pedido..."
+        let dataJSON = localStorage.getItem(CLAVE_ORDEN);
+        if (!dataJSON) {
+            dataJSON = localStorage.getItem("ultimo_pedido_dulce_tentacion");
         }
 
-        // === Encabezado ===
-        const numeroBoletaEl = document.getElementById("numeroBoleta");
-        const fechaBoletaEl  = document.getElementById("fechaBoleta");
-        const datosClienteEl = document.getElementById("datosCliente");
-        const datosEntregaEl = document.getElementById("datosEntrega");
+        if (!dataJSON) {
+            detalleBoletaEl.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center text-muted">
+                        No hay información de pedido reciente.
+                    </td>
+                </tr>`;
+            totalBoletaEl.textContent = "$0";
+            return;
+        }
 
-        numeroBoletaEl.textContent = "Boleta N° " + (orden.numero || "DT-XXXXXX");
+        let orden;
+        try {
+            orden = JSON.parse(dataJSON);
+        } catch (e) {
+            console.error("Error al parsear orden:", e);
+            detalleBoletaEl.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center text-muted">
+                        No se pudo leer la información del pedido.
+                    </td>
+                </tr>`;
+            totalBoletaEl.textContent = "$0";
+            return;
+        }
 
-        const fecha = orden.fechaCreacion ? new Date(orden.fechaCreacion) : new Date();
-        fechaBoletaEl.textContent = "Fecha: " + fecha.toLocaleString("es-CL");
+        // 2) Cabecera: número y fecha
+        if (orden.numero) {
+            numPedidoEl.textContent = orden.numero;
+        } else if (orden._id) {
+            numPedidoEl.textContent = "DT-" + orden._id.slice(-6).toUpperCase();
+        } else {
+            numPedidoEl.textContent = "-";
+        }
 
-        datosClienteEl.textContent =
-            "Cliente: " + (datosEntrega.nombreDestinatario || "Sin nombre");
+        const fechaCruda = orden.fechaCreacion || orden.fecha || new Date().toISOString();
+        const fecha = new Date(fechaCruda);
+        fechaPedidoEl.textContent = fecha.toLocaleString("es-CL");
 
-        datosEntregaEl.textContent =
-            "Entrega en: " +
-            (datosEntrega.direccion || "Sin dirección") + ", " +
-            (datosEntrega.comuna || "") +
-            " | Tipo: " + (datosEntrega.tipoEntrega === "envio" ? "Envío a domicilio" : "Retiro en tienda") +
-            " | Fecha: " + (datosEntrega.fecha || "-") +
-            " (" + (datosEntrega.franja || "-") + ")";
+        // 3) Datos del cliente
+        const entrega = orden.entrega || {};
+        const usuario = orden.usuario || {};
 
-        // === Tabla de productos ===
-        const tbody = document.getElementById("tablaProductos");
-        let subtotal = 0;
+        // Nombre: primero el destinatario de la entrega, si no, el nombre del usuario
+        clienteNombreEl.textContent =
+            entrega.nombreDestinatario ||
+            usuario.nombre ||
+            "(no registrado)";
 
-        carrito.forEach(item => {
-            subtotal += item.precio;
+        // Correo: sólo si tenemos usuario con email
+        clienteEmailEl.textContent =
+            usuario.email ||
+            "(no registrado)";
 
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>${item.nombre}</td>
-                <td class="text-center">${item.tamano || "-"}${item.tamano ? " pers." : ""}</td>
-                <td>${item.mensaje || "(sin mensaje)"}</td>
-                <td class="text-end">${formatear(item.precio)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
+        // 4) Detalle de productos
+        const productos = orden.productos || orden.items || [];
 
-        const costoEnvio = datosEntrega.costoEnvio || 0;
-        const total      = subtotal + costoEnvio;
+        if (!productos.length) {
+            detalleBoletaEl.innerHTML = `
+                <tr>
+                    <td colspan="3" class="text-center text-muted">
+                        Este pedido no tiene productos registrados.
+                    </td>
+                </tr>`;
+        } else {
+            detalleBoletaEl.innerHTML = "";
+            productos.forEach(item => {
+                const nombre  = item.nombre || "Producto";
+                const tamano  = item.tamano || item.tamaño || "Sin tamaño";
+                const relleno = item.relleno || "Sin relleno";
+                const msg     = item.mensaje || "(sin mensaje)";
+                const precio  = item.subtotal || item.precio || 0;
 
-        document.getElementById("subtotalBoleta").textContent = "Subtotal: " + formatear(subtotal);
-        document.getElementById("envioBoleta").textContent    = "Envío: "    + formatear(costoEnvio);
-        document.getElementById("totalBoleta").textContent    = "Total: "    + formatear(total);
+                detalleBoletaEl.innerHTML += `
+                    <tr>
+                        <td>${nombre}</td>
+                        <td class="small">
+                            Tamaño: ${tamano}<br>
+                            Relleno: ${relleno}<br>
+                            Mensaje: ${msg}
+                        </td>
+                        <td class="text-end">${formatearPrecio(precio)}</td>
+                    </tr>`;
+            });
+        }
+
+        // 5) Total: si viene en la orden, úsalo; si no, lo calculamos
+        const subtotalProductos = productos.reduce(
+            (acc, it) => acc + (it.subtotal || it.precio || 0),
+            0
+        );
+        const costoEnvio = (orden.entrega && orden.entrega.costoEnvio) || 0;
+
+        const total = orden.total || (subtotalProductos + costoEnvio);
+        totalBoletaEl.textContent = formatearPrecio(total);
+    });
     </script>
 
 </body>
