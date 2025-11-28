@@ -3,76 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>Carrito de compra</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- 👈 importante para móvil -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="estilos.css" rel="stylesheet">
 </head>
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
     <div id="navbar-container"></div>
-    <!-- Contenido -->
-    <div class="container my-5">
-        <h2 class="text-center mb-4">Carrito de compra</h2>
+    <!-- CONTENIDO -->
+    <main class="flex-fill">
+        <div class="container my-4">
+            <h2 class="text-center mb-4">Carrito de compra</h2>
+            <!-- Carrito vacío -->
+            <div id="carritoVacio" class="text-center d-none">
+                <p class="mb-3">Tu carrito está vacío.</p>
+                <button class="btn btn-pastel"
+                        onclick="window.location.href='catalogo.html'">
+                    Ir al catálogo
+                </button>
+            </div>
 
-        <!-- Carrito vacío -->
-        <div id="carritoVacio" class="text-center d-none">
-            <p class="mb-3">Tu carrito está vacío.</p>
-            <button class="btn btn-pastel" onclick="window.location.href='catalogo.html'">
-                Ir al catálogo
-            </button>
-        </div>
+            <!-- Carrito con productos -->
+            <div id="carritoContenido" class="d-none">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-md-10 col-lg-8">
 
-        <!-- Carrito con productos -->
-        <div id="carritoContenido" class="d-none">
-            <div class="row justify-content-center">
-                <div class="col-md-10 col-lg-8">
+                        <!-- Lista de items -->
+                        <ul id="listaItemsCarrito" class="list-group mb-4">
+                            <!-- Se completa por JS -->
+                        </ul>
 
-                    <!-- Lista de items -->
-                    <ul id="listaItemsCarrito" class="list-group mb-4">
-                    </ul>
-
-                    <!-- Resumen y acciones -->
-                    <div class="card shadow-sm mb-3">
-                        <div class="card-body d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="card-title mb-1">Resumen</h5>
-                                <p id="totalCarritoGeneral" class="fw-bold mb-0">Total: $0</p>
+                        <!-- Resumen y acciones -->
+                        <div class="card shadow-sm mb-3">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title mb-1">Resumen</h5>
+                                    <p id="totalCarritoGeneral" class="fw-bold mb-0">Total: $0</p>
+                                </div>
+                                <button id="btnVaciar" class="btn btn-outline-danger">
+                                    Vaciar carrito
+                                </button>
                             </div>
-                            <button id="btnVaciar" class="btn btn-outline-danger">
-                                Vaciar carrito
-                            </button>
                         </div>
-                    </div>
 
-                    <!-- Validación de stock y pago -->
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h5 class="card-title mb-3">Disponibilidad y pago</h5>
-                            <p class="mb-2">Antes de pagar, valida la disponibilidad de tu pedido:</p>
-                            <button id="btnValidar" class="btn btn-outline-primary mb-3">
-                                Validar disponibilidad
-                            </button>
+                        <!-- Validación de stock y pago -->
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title mb-3">Disponibilidad y pago</h5>
+                                <p class="mb-2">
+                                    Antes de pagar, valida la disponibilidad de tu pedido:
+                                </p>
+                                <button id="btnValidar" class="btn btn-outline-primary mb-3 w-100">
+                                    Validar disponibilidad
+                                </button>
 
-                            <p id="disponible" class="text-success d-none mb-2">
-                                ✔ Todos los productos están disponibles para la fecha seleccionada.
-                            </p>
-                            <p id="noDisponible" class="text-danger d-none mb-2">
-                                ✖ No hay disponibilidad completa para este pedido. Intenta ajustar los productos.
-                            </p>
+                                <p id="disponible" class="text-success d-none mb-2">
+                                    ✔ Todos los productos están disponibles para la fecha seleccionada.
+                                </p>
+                                <p id="noDisponible" class="text-danger d-none mb-2">
+                                    ✖ No hay disponibilidad completa para este pedido. Intenta ajustar los productos.
+                                </p>
 
-                            <button id="btnPagar" class="btn btn-success d-none">
-                                Ir a seleccionar fecha de entrega
-                            </button>
+                                <button id="btnPagar" class="btn btn-success d-none w-100">
+                                    Ir a seleccionar fecha de entrega
+                                </button>
+                            </div>
                         </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
+
         </div>
-    </div>
+    </main>
 
     <footer class="text-center py-3 bg-dark text-light mt-auto">
         <p class="mb-0">© 2025 Dulce Tentación — Todos los derechos reservados</p>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="productos.js"></script>
     <script src="carrito.js"></script>
@@ -115,7 +123,7 @@
 
                 li.innerHTML = `
                     <div class="me-3" style="width: 90px;">
-                        <img src="${item.imagen}" alt="${item.nombre}"class="img-fluid rounded" style="height:70px; object-fit:cover;">
+                        <img src="${item.imagen}" alt="${item.nombre}" class="img-fluid rounded" style="height:70px; object-fit:cover;">
                     </div>
                     <div class="flex-grow-1">
                         <h6 class="mb-1">${item.nombre}</h6>
@@ -183,61 +191,16 @@
             }
         });
 
-        btnPagar.addEventListener("click", async () => {
-            if (carrito.length === 0) return;
-
-            // Obtener usuario actual (si está logueado)
-            const usuario = (typeof obtenerUsuarioActual === "function")
-                ? obtenerUsuarioActual()
-                : null;
-
-            const payload = {
-                usuario: usuario
-                    ? {
-                        id: usuario._id || usuario.id,
-                        nombre: usuario.nombre,
-                        email: usuario.email
-                    }
-                    : null,
-                items: carrito
-            };
-
-            try {
-                const resp = await fetch("http://localhost:3900/api/pedidos/crear", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await resp.json();
-
-                if (!resp.ok || data.status !== "success") {
-                    alert(data.mensaje || "No se pudo registrar el pedido.");
-                    return;
-                }
-
-                // Guardar el pedido en localStorage para usarlo luego en la boleta
-                localStorage.setItem("ultimo_pedido_dulce_tentacion", JSON.stringify(data.pedido));
-
-                // Vaciar carrito 
-                if (typeof vaciarCarrito === "function") {
-                    vaciarCarrito();
-                } else {
-                    localStorage.removeItem("carrito_dulce_tentacion");
-                }
-
-                alert("Pedido registrado. Ahora selecciona la fecha de entrega.");
-
-                // Redirigir a la boleta 
-                window.location.href = "SeleccionDeEntrega.html";
-
-            } catch (error) {
-                console.error("Error al crear pedido:", error);
-                alert("Ocurrió un error al procesar el pago. Intenta nuevamente.");
+        btnPagar.addEventListener("click", () => {
+            if (!carrito || carrito.length === 0) {
+                alert("Tu carrito está vacío.");
+                return;
             }
+
+            // Solo avanzar en el flujo
+            window.location.href = "SeleccionDeEntrega.html";
         });
+
     </script>
 </body>
 </html>

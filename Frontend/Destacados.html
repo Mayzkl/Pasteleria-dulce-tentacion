@@ -1,68 +1,83 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <title>Destacados</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="estilos.css" rel="stylesheet">
-    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Destacados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="estilos.css" rel="stylesheet">
+</head>
 <body style="background-color: #fff7f0;" class="d-flex flex-column min-vh-100">
     <div id="navbar-container"></div>
-<!-- Hero / título -->
-    <section class="hero text-center">
+    <section class="hero text-center py-4 py-md-5 px-3">
         <div class="container">
-            <h1 class="display-5 mb-3">Tortas destacadas de la semana</h1>
-            <p class="mb-4">Descubre nuestras recomendaciones y entra al detalle para tu próxima celebración.</p>
+            <h1 class="h3 h-md-1 display-5 mb-3">Tortas destacadas de la semana</h1>
+            <p class="mb-4">
+                Descubre nuestras recomendaciones y entra al detalle para tu próxima celebración.
+            </p>
         </div>
     </section>
 
     <!-- Contenido principal -->
-    <main class="container my-5">
+    <main class="container my-4 my-md-5">
 
         <!-- Carrusel de destacados -->
         <div id="carruselDestacados" class="d-none">
             <div class="row justify-content-center">
-                <div class="col-md-8">
+                <div class="col-12 col-sm-10 col-md-8">
                     <div class="card shadow-sm">
-                        <div class="row g-0">
+                        <div class="row g-0 flex-column flex-md-row">
+                            <!-- Imagen -->
                             <div class="col-md-5 d-flex align-items-center">
-                                <img id="imgProducto" src="" alt="Torta destacada" class="img-fluid rounded-start">
+                                <img id="imgProducto" src="" alt="Torta destacada"
+                                     class="img-fluid rounded-top rounded-start-md w-100">
                             </div>
+
+                            <!-- Texto -->
                             <div class="col-md-7">
-                                <div class="card-body">
+                                <div class="card-body d-flex flex-column">
                                     <h3 id="nombreProducto" class="card-title mb-2"></h3>
                                     <h5 id="precioProducto" class="text-danger mb-2"></h5>
-                                    <span id="etiquetaProducto" class="badge bg-warning text-dark mb-3"></span>
-                                    <p id="descripcionProducto" class="card-text"></p>
+                                    <span id="etiquetaProducto"
+                                          class="badge bg-warning text-dark mb-3 align-self-start">
+                                    </span>
 
-                                    <div class="d-flex justify-content-between align-items-center mt-4">
-                                        <div>
-                                            <button id="btnAnterior" class="btn btn-outline-secondary me-2">
-                                                ← Anterior
-                                            </button>
-                                            <button id="btnSiguiente" class="btn btn-outline-secondary">
-                                                Siguiente →
+                                    <p id="descripcionProducto" class="card-text mb-3"></p>
+
+                                    <div class="mt-auto">
+                                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 mt-2">
+                                            <div class="d-flex justify-content-center justify-content-md-start gap-2 w-100 w-md-auto">
+                                                <button id="btnAnterior"
+                                                        class="btn btn-outline-secondary flex-fill flex-md-grow-0">
+                                                    ← Anterior
+                                                </button>
+                                                <button id="btnSiguiente"
+                                                        class="btn btn-outline-secondary flex-fill flex-md-grow-0">
+                                                    Siguiente →
+                                                </button>
+                                            </div>
+                                            <button id="btnVerDetalle"
+                                                    class="btn btn-primary w-100 w-md-auto">
+                                                Ver detalle
                                             </button>
                                         </div>
-                                        <button id="btnVerDetalle" class="btn btn-primary">
-                                            Ver detalle
-                                        </button>
+                                        <p id="indicador" class="text-muted mt-3 mb-0 small text-center text-md-start"></p>
                                     </div>
-
-                                    <p id="indicador" class="text-muted mt-3 mb-0 small"></p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                        </div> <!-- row -->
+                    </div> <!-- card -->
+                </div> <!-- col -->
+            </div> <!-- row -->
         </div>
 
         <!-- Estado sin destacados -->
         <div id="sinDestacados" class="text-center d-none">
             <h2 class="mb-3 fw-bold">Tortas destacadas de la semana</h2>
             <p class="mb-4">No hay tortas destacadas disponibles por el momento.</p>
-            <button class="btn btn-pastel btn-lg" onclick="window.location.href='catalogo.html'">
+            <button class="btn btn-pastel btn-lg"
+                    onclick="window.location.href='catalogo.html'">
                 Ir al catálogo
             </button>
         </div>
@@ -77,102 +92,104 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="usuarios.js"></script>
     <script src="navbar.js"></script>
+
     <script>
-    const URL_API_PRODUCTOS = "http://localhost:3900/api/productos";
+        const URL_API_PRODUCTOS = "http://localhost:3900/api/productos";
 
-    let destacados = [];
-    let indiceActual = 0;
+        let destacados = [];
+        let indiceActual = 0;
 
-    function formatearPrecio(valor) {
-        return "$" + (valor || 0).toLocaleString("es-CL");
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        cargarDestacados();
-    });
-
-    async function cargarDestacados() {
-        const seccionCarrusel = document.getElementById("carruselDestacados");
-        const seccionSin      = document.getElementById("sinDestacados");
-
-        try {
-            const resp = await fetch(`${URL_API_PRODUCTOS}/listar`);
-            const data = await resp.json();
-
-            if (!resp.ok || data.status !== "success") {
-                seccionCarrusel.classList.add("d-none");
-                seccionSin.classList.remove("d-none");
-                return;
-            }
-
-            const productos = data.productos || [];
-
-            destacados = productos;
-
-            if (destacados.length === 0) {
-                seccionCarrusel.classList.add("d-none");
-                seccionSin.classList.remove("d-none");
-                return;
-            }
-
-            seccionCarrusel.classList.remove("d-none");
-            seccionSin.classList.add("d-none");
-
-            inicializarCarrusel();
-
-        } catch (error) {
-            console.error("Error al cargar destacados:", error);
-            seccionCarrusel.classList.add("d-none");
-            seccionSin.classList.remove("d-none");
+        function formatearPrecio(valor) {
+            return "$" + (valor || 0).toLocaleString("es-CL");
         }
-    }
 
-    function inicializarCarrusel() {
-        mostrarDestacado();
-
-        document.getElementById("btnAnterior").addEventListener("click", () => {
-            indiceActual = (indiceActual - 1 + destacados.length) % destacados.length;
-            mostrarDestacado();
+        document.addEventListener("DOMContentLoaded", () => {
+            cargarDestacados();
         });
 
-        document.getElementById("btnSiguiente").addEventListener("click", () => {
-            indiceActual = (indiceActual + 1) % destacados.length;
-            mostrarDestacado();
-        });
+        async function cargarDestacados() {
+            const seccionCarrusel = document.getElementById("carruselDestacados");
+            const seccionSin      = document.getElementById("sinDestacados");
 
-        document.getElementById("btnVerDetalle").addEventListener("click", () => {
+            try {
+                const resp = await fetch(`${URL_API_PRODUCTOS}/listar`);
+                const data = await resp.json();
+
+                if (!resp.ok || data.status !== "success") {
+                    seccionCarrusel.classList.add("d-none");
+                    seccionSin.classList.remove("d-none");
+                    return;
+                }
+
+                const productos = data.productos || [];
+
+                destacados = productos;
+
+                if (destacados.length === 0) {
+                    seccionCarrusel.classList.add("d-none");
+                    seccionSin.classList.remove("d-none");
+                    return;
+                }
+
+                seccionCarrusel.classList.remove("d-none");
+                seccionSin.classList.add("d-none");
+
+                inicializarCarrusel();
+
+            } catch (error) {
+                console.error("Error al cargar destacados:", error);
+                seccionCarrusel.classList.add("d-none");
+                seccionSin.classList.remove("d-none");
+            }
+        }
+
+        function inicializarCarrusel() {
+            mostrarDestacado();
+
+            document.getElementById("btnAnterior").addEventListener("click", () => {
+                indiceActual = (indiceActual - 1 + destacados.length) % destacados.length;
+                mostrarDestacado();
+            });
+
+            document.getElementById("btnSiguiente").addEventListener("click", () => {
+                indiceActual = (indiceActual + 1) % destacados.length;
+                mostrarDestacado();
+            });
+
+            document.getElementById("btnVerDetalle").addEventListener("click", () => {
+                const prod = destacados[indiceActual];
+                window.location.href = `personalizacion.html?id=${prod._id}`;
+            });
+        }
+
+        function mostrarDestacado() {
             const prod = destacados[indiceActual];
-            window.location.href = `personalizacion.html?id=${prod._id}`;
-        });
-    }
 
-    function mostrarDestacado() {
-        const prod = destacados[indiceActual];
+            const img       = document.getElementById("imgProducto");
+            const nombre    = document.getElementById("nombreProducto");
+            const precio    = document.getElementById("precioProducto");
+            const etiqueta  = document.getElementById("etiquetaProducto");
+            const desc      = document.getElementById("descripcionProducto");
+            const indicador = document.getElementById("indicador");
 
-        const img   = document.getElementById("imgProducto");
-        const nombre= document.getElementById("nombreProducto");
-        const precio= document.getElementById("precioProducto");
-        const etiqueta = document.getElementById("etiquetaProducto");
-        const desc  = document.getElementById("descripcionProducto");
-        const indicador = document.getElementById("indicador");
+            const titulo       = prod.titulo || "Producto sin nombre";
+            const descripcion  = prod.descripcion || "";
+            const imagen       = prod.imagen || "";
+            const price        = prod.precio || 0;
 
-        const titulo = prod.titulo || "Producto sin nombre";
-        const descripcion = prod.descripcion || "";
-        const imagen = prod.imagen || "";
-        const price  = prod.precio || 0;
-
-        if (img) {
-            img.src = imagen;
-            img.alt = titulo;
+            if (img) {
+                img.src = imagen;
+                img.alt = titulo;
+            }
+            if (nombre) nombre.textContent = titulo;
+            if (precio) precio.textContent = formatearPrecio(price);
+            if (etiqueta) etiqueta.textContent = "Recomendado";
+            if (desc) desc.textContent = descripcion;
+            if (indicador) {
+                indicador.textContent =
+                    `Mostrando ${indiceActual + 1} de ${destacados.length} tortas destacadas`;
+            }
         }
-        if (nombre) nombre.textContent = titulo;
-        if (precio) precio.textContent = formatearPrecio(price);
-        if (etiqueta) etiqueta.textContent = "Recomendado";
-        if (desc) desc.textContent = descripcion;
-        if (indicador) {
-            indicador.textContent = `Mostrando ${indiceActual + 1} de ${destacados.length} tortas destacadas`;
-        }
-    }
     </script>
 </body>
 </html>
