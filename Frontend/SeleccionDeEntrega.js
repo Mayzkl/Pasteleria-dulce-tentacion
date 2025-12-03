@@ -29,11 +29,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function calcularTotales() {
         const totalProductos = carrito.reduce((acc, item) => acc + (item.precio || 0), 0);
         let costoEnvio = 0;
-        // Si la entrega es envío a domicilio, calcular costo normal
         if (tipoEntregaEl.value === "domicilio") {
             costoEnvio = costoPorComuna[comunaEl.value] || 0;
         } else {
-            // Si es retiro en tienda, costo 0 para cualquier comuna
             costoEnvio = 0;
         }
         const total = totalProductos + costoEnvio;
@@ -67,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
             costoEnvio: parseInt(costoEnvioEl.textContent.replace("$", "").replace(".", "")) || 0
         };
         localStorage.setItem("entrega_dulce_tentacion", JSON.stringify(entrega));
-        // Avanzar al pago
         window.location.href = "PagoElectronico.html";
     });
     calcularTotales();

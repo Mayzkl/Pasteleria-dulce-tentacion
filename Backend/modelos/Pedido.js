@@ -1,11 +1,26 @@
 const { Schema, model } = require("mongoose");
 
-const PedidoSchema = Schema({
+const PedidoSchema = new Schema({
+    numero: {
+        type: String,
+    },
+
     usuario: {
-        id:   { type: Schema.Types.ObjectId, ref: "Usuario", required: false },
+        id:     { type: Schema.Types.ObjectId, ref: "Usuario", required: false },
         nombre: String,
         email:  String
     },
+
+    entrega: {
+        nombreDestinatario: String,
+        direccion:         String,
+        comuna:            String,
+        fechaEntrega:      String,
+        franjaEntrega:     String,
+        tipoEntrega:       String,
+        costoEnvio:        Number
+    },
+
     items: [
         {
             idProducto: { type: Schema.Types.ObjectId, ref: "Articulo" },
@@ -17,9 +32,18 @@ const PedidoSchema = Schema({
             mensaje: String
         }
     ],
-    total:   Number,
-    fecha:   { type: Date, default: Date.now },
-    estado:  {
+
+    total: {
+        type: Number,
+        default: 0
+    },
+
+    fecha: {
+        type: Date,
+        default: Date.now
+    },
+
+    estado: {
         type: String,
         enum: ["pagado", "en_preparacion", "en_despacho", "entregado", "cancelado"],
         default: "pagado"

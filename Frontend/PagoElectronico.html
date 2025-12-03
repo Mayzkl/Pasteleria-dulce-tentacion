@@ -76,20 +76,19 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="keycloak-config.js"></script>
+    <script src="usuarios.js"></script>
     <script src="productos.js"></script>
     <script src="carrito.js"></script>
-    <script src="usuarios.js"></script>
     <script src="navbar.js"></script>
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Claves de localStorage
         const CLAVE_ENTREGA   = "entrega_dulce_tentacion";
         const CLAVE_CARRITO   = "carrito_dulce_tentacion";
         const CLAVE_ORDEN     = "orden_dulce_tentacion";
         const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion";
 
-        // Leer datos de entrega
         const entrega = JSON.parse(localStorage.getItem(CLAVE_ENTREGA) || "{}");
 
         // Leer carrito
@@ -140,7 +139,7 @@
                 `(incluye envío: ${formatear(costoEnvio)})`;
         }
 
-        // --- Lógica de pago simulado ---
+        // Lógica de pago
         const btnConfirmarPago = document.getElementById("btnConfirmarPago");
         const mensajeError     = document.getElementById("mensajeError");
 
@@ -162,13 +161,15 @@
                 }
                 return;
             }
+
             if (mensajeError) {
                 mensajeError.classList.add("d-none");
             }
 
-            // Generar número de orden simulado
+            // Generar número de orden 
             const numeroOrden = "DT-" + Math.floor(100000 + Math.random() * 900000);
 
+            // Construir objeto de orden 
             const orden = {
                 numero: numeroOrden,
                 total: total,
@@ -178,24 +179,86 @@
                 productos: carrito
             };
 
-            // Guardar orden actual
+            // Guardar orden actual en localStorage 
             localStorage.setItem(CLAVE_ORDEN, JSON.stringify(orden));
-
-            // Guardar también como "último pedido"
             localStorage.setItem("ultimo_pedido_dulce_tentacion", JSON.stringify(orden));
 
-            // Guardar en historial
             const historialActual = JSON.parse(localStorage.getItem(CLAVE_HISTORIAL) || "[]");
             historialActual.push(orden);
             localStorage.setItem(CLAVE_HISTORIAL, JSON.stringify(historialActual));
 
-            // Limpiar carrito
+            // Usuario actual desde localStorage o Keycloak
+            let usuarioActual = null;
+            try {
+                if (typeof obtenerUsuarioActual === "function") {
+                    usuarioActual = obtenerUsuarioActual();
+                }
+            } catch (e) {
+                console.warn("No se pudo obtener usuario actual:", e);
+            }
+
+            const payload = {
+                numero: numeroOrden,
+
+                entrega: {
+                    nombreDestinatario: entrega.nombreDestinatario || "",
+                    direccion:          entrega.direccion || "",
+                    comuna:             entrega.comuna || "",
+                    fechaEntrega:       entrega.fechaEntrega || "",
+                    franjaEntrega:      entrega.franjaEntrega || "",
+                    tipoEntrega:        entrega.tipoEntrega || "",
+                    costoEnvio:         Number(entrega.costoEnvio || 0)
+                },
+
+                // datos del usuario
+                usuario: usuarioActual
+                    ? {
+                        id:     usuarioActual._id || usuarioActual.id || null,
+                        nombre: usuarioActual.nombre  || usuarioActual.username || "cliente",
+                        email:  usuarioActual.email   || ""
+                    }
+                    : {
+                        id: null,
+                        nombre: "Sin nombre",
+                        email: ""
+                    },
+
+                // productos
+                items: carrito.map(p => ({
+                    id:       p.id,
+                    nombre:   p.nombre,
+                    precio:   Number(p.subtotal ?? p.precio ?? 0),
+                    imagen:   p.imagen || "",
+                    tamano:   p.tamano || "",
+                    relleno:  p.relleno || "",
+                    mensaje:  p.mensaje || ""
+                }))
+            };
+
+
+            fetch("http://localhost:3900/api/pedidos/crear", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("[PagoElectronico] Pedido guardado en backend:", data);
+            })
+            .catch(err => {
+                console.error("Error al guardar pedido en backend:", err);
+            });
+
             localStorage.removeItem(CLAVE_CARRITO);
 
-            // Ir a la boleta
             window.location.href = "BoletaDigital.html";
         });
     });
     </script>
+
+
+
 </body>
 </html>

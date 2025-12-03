@@ -2,26 +2,24 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Seguimiento del pedido</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="estilos.css" rel="stylesheet">
 </head>
 <body style="background-color:#FFF7F0;" class="d-flex flex-column min-vh-100">
     <div id="navbar-container"></div>
-    <div class="container my-4 my-md-5">
+    <div class="container my-5">
         <h2 class="text-center mb-4 fw-bold">Seguimiento del pedido</h2>
+
         <div class="row justify-content-center">
             <div class="col-lg-8">
-
-                <!-- Resumen pedido -->
                 <div class="card shadow-sm mb-4">
-                    <div class="card-body d-flex justify-content-between align-items-center flex-column flex-md-row gap-2">
-                        <div class="text-center text-md-start">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
                             <p id="numeroOrden" class="fw-bold mb-1">Pedido: -</p>
                             <p id="infoEntrega" class="mb-0 text-muted"></p>
                         </div>
-                        <div class="text-center text-md-end">
+                        <div class="text-end">
                             <span id="estadoActual" class="badge bg-primary">En preparación</span>
                         </div>
                     </div>
@@ -63,18 +61,14 @@
                     </div>
                 </div>
 
-                <!-- Botones -->
-                <div class="d-flex flex-column flex-md-row gap-2 justify-content-between mt-4">
-                    <button class="btn btn-outline-secondary w-100 w-md-auto"
-                            onclick="window.location.href='index.html'">
+                <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mt-4">
+                    <button id="btnVolverInicio" class="btn btn-outline-secondary w-100 w-md-auto">
                         Volver al inicio
                     </button>
-                    <button class="btn btn-danger w-100 w-md-auto"
-                            onclick="window.location.href='AnularCompra.html'">
+                    <button id="btnAnularPedido" class="btn btn-danger w-100 w-md-auto">
                         Anular pedido
                     </button>
-                    <button class="btn btn-outline-primary w-100 w-md-auto"
-                            onclick="window.location.href='BoletaDigital.html'">
+                    <button id="btnVerBoleta" class="btn btn-outline-primary w-100 w-md-auto">
                         Ver boleta
                     </button>
                 </div>
@@ -90,12 +84,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="usuarios.js"></script>
     <script src="navbar.js"></script>
-
     <script>
-        const CLAVE_ORDEN     = "ultimo_pedido_dulce_tentacion";
-        const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion";
+        const CLAVE_ORDEN  = "ultimo_pedido_dulce_tentacion";
+        const API_PEDIDOS  = "http://localhost:3900/api/pedidos";
 
-        function leerOrdenActual() {
+        function leerOrdenLocal() {
             try {
                 return JSON.parse(localStorage.getItem(CLAVE_ORDEN) || "null");
             } catch {
@@ -103,19 +96,38 @@
             }
         }
 
-        function leerHistorial() {
-            try {
-                return JSON.parse(localStorage.getItem(CLAVE_HISTORIAL) || "[]");
-            } catch {
-                return [];
+        function guardarOrdenLocal(orden) {
+            localStorage.setItem(CLAVE_ORDEN, JSON.stringify(orden));
+        }
+
+        function estadoBackToFront(estado) {
+            switch (estado) {
+                case "pagado":         return "Recibido";
+                case "en_preparacion": return "En preparación";
+                case "en_despacho":    return "En despacho";
+                case "entregado":      return "Entregado";
+                case "cancelado":      return "Anulada";
+                default:               return "Recibido";
             }
         }
 
-        function formatearFecha(fechaIso) {
-            if (!fechaIso) return "-";
-            const f = new Date(fechaIso);
-            return f.toLocaleString("es-CL");
-        }
+        //  referencias a elementos 
+        const numeroOrdenEl   = document.getElementById("numeroOrden");
+        const infoEntregaEl   = document.getElementById("infoEntrega");
+        const estadoActualEl  = document.getElementById("estadoActual");
+        const mensajeEstadoEl = document.getElementById("mensajeEstado");
+
+        const btnVolverInicio = document.getElementById("btnVolverInicio");
+        const btnAnularPedido = document.getElementById("btnAnularPedido");
+        const btnVerBoleta    = document.getElementById("btnVerBoleta");
+
+        btnVolverInicio?.addEventListener("click", () => {
+            window.location.href = "index.html";
+        });
+
+        btnVerBoleta?.addEventListener("click", () => {
+            window.location.href = "BoletaDigital.html";
+        });
 
         function activarPaso(id) {
             const el = document.getElementById(id);
@@ -124,94 +136,173 @@
             el.classList.remove("border");
         }
 
-        // Carga de datos
-        const numeroOrdenEl  = document.getElementById("numeroOrden");
-        const infoEntregaEl  = document.getElementById("infoEntrega");
-        const estadoActualEl = document.getElementById("estadoActual");
-        const mensajeEstadoEl= document.getElementById("mensajeEstado");
-
-        let orden = leerOrdenActual();
-
-        if (!orden) {
-            numeroOrdenEl.textContent  = "Pedido: (sin pedido reciente)";
-            infoEntregaEl.textContent  = "No se encontró información de seguimiento.";
-            estadoActualEl.textContent = "Sin pedido";
-            estadoActualEl.className   = "badge bg-secondary";
-            mensajeEstadoEl.textContent =
-                "Realiza una compra para poder visualizar el seguimiento.";
-        } else {
-            // Intentar refrescar estado con el historial
-            const historial = leerHistorial();
-            const encontrada = historial.find(o => (o.numero || "") === (orden.numero || ""));
-            if (encontrada) {
-                orden.estado = encontrada.estado || orden.estado;
-            }
-
-            const entrega = orden.entrega || {};
-
-            numeroOrdenEl.textContent = "Pedido: " + (orden.numero || "DT-XXXXXX");
-            infoEntregaEl.textContent =
-                "Entrega el " + (entrega.fecha || "-") +
-                " en " + (entrega.comuna || "-") +
-                " (" + (entrega.franja || "-") + ")";
-
-            const estado = orden.estado || "En preparación";
-            estadoActualEl.textContent = estado;
-
-            // Color del badge según estado
-            let badgeClass = "badge bg-primary";
-            if (estado === "En preparación") badgeClass = "badge bg-warning text-dark";
-            if (estado === "En despacho")    badgeClass = "badge bg-info text-dark";
-            if (estado === "Entregado")      badgeClass = "badge bg-success";
-            if (estado === "Anulación solicitada") badgeClass = "badge bg-danger";
-            if (estado === "Anulada")             badgeClass = "badge bg-dark";
-            estadoActualEl.className = badgeClass;
-
-            // Reset visual de pasos
+        function resetPasos() {
             ["step-recibido","step-preparacion","step-despacho","step-entregado"].forEach(id => {
                 const el = document.getElementById(id);
-                el.className = "p-3 border rounded-3";
+                if (el) el.className = "p-3 border rounded-3";
             });
+        }
 
-            // Marcar pasos según estado
+        function configurarBotonAnular(pedidoBack) {
+            if (!btnAnularPedido) return;
+
+            if (!pedidoBack) {
+                btnAnularPedido.disabled = true;
+                btnAnularPedido.classList.remove("btn-danger");
+                btnAnularPedido.classList.add("btn-secondary");
+                btnAnularPedido.title = "No hay un pedido seleccionado para anular.";
+                btnAnularPedido.onclick = null;
+                return;
+            }
+
+            // Solo se puede anular si está "pagado"
+            if (pedidoBack.estado === "pagado") {
+                btnAnularPedido.disabled = false;
+                btnAnularPedido.classList.remove("btn-secondary");
+                btnAnularPedido.classList.add("btn-danger");
+                btnAnularPedido.title = "Puedes anular este pedido.";
+
+                btnAnularPedido.onclick = async () => {
+                    if (!confirm("¿Seguro que deseas anular este pedido?")) return;
+
+                    try {
+                        const resp = await fetch(`${API_PEDIDOS}/cancelar/${pedidoBack._id}`, {
+                            method: "PUT"
+                        });
+
+                        if (!resp.ok) {
+                            throw new Error("No se pudo cancelar el pedido");
+                        }
+
+                        const data = await resp.json();
+                        const pedidoActualizado = data.pedido || pedidoBack;
+
+                        const ordenLocal = leerOrdenLocal();
+                        if (ordenLocal) {
+                            ordenLocal.estado = estadoBackToFront(pedidoActualizado.estado);
+                            guardarOrdenLocal(ordenLocal);
+                        }
+
+                        mostrarPedido(pedidoActualizado, ordenLocal);
+
+                        alert("Pedido anulado correctamente.");
+                    } catch (err) {
+                        console.error(err);
+                        alert("Ocurrió un error al anular el pedido.");
+                    }
+                };
+            } else {
+                btnAnularPedido.disabled = true;
+                btnAnularPedido.classList.remove("btn-danger");
+                btnAnularPedido.classList.add("btn-secondary");
+                btnAnularPedido.title =
+                    "Solo puedes anular pedidos que aún están en estado 'Recibido'.";
+                btnAnularPedido.onclick = null;
+            }
+        }
+
+        function mostrarPedido(pedidoBack, ordenLocal) {
+            const entrega = pedidoBack.entrega || {};
+            const labelEstado = estadoBackToFront(pedidoBack.estado || "pagado");
+
+            numeroOrdenEl.textContent = "Pedido: " + (pedidoBack.numero || "DT-XXXXXX");
+            infoEntregaEl.textContent =
+                "Entrega el " + (entrega.fechaEntrega || ordenLocal?.entrega?.fecha || "-") +
+                " en " + (entrega.comuna || ordenLocal?.entrega?.comuna || "-") +
+                " (" + (entrega.franjaEntrega || ordenLocal?.entrega?.franja || "-") + ")";
+
+            estadoActualEl.textContent = labelEstado;
+
+            let badgeClass = "badge bg-primary";
+            if (labelEstado === "En preparación")        badgeClass = "badge bg-warning text-dark";
+            if (labelEstado === "En despacho")           badgeClass = "badge bg-info text-dark";
+            if (labelEstado === "Entregado")             badgeClass = "badge bg-success";
+            if (labelEstado === "Anulada")               badgeClass = "badge bg-dark";
+            estadoActualEl.className = badgeClass;
+
+            resetPasos();
             activarPaso("step-recibido");
-            if (["En preparación","En despacho","Entregado","Anulación solicitada","Anulada"].includes(estado)) {
+            if (["En preparación","En despacho","Entregado","Anulada"].includes(labelEstado)) {
                 activarPaso("step-preparacion");
             }
-            if (["En despacho","Entregado"].includes(estado)) {
+            if (["En despacho","Entregado"].includes(labelEstado)) {
                 activarPaso("step-despacho");
             }
-            if (estado === "Entregado") {
+            if (labelEstado === "Entregado") {
                 activarPaso("step-entregado");
             }
 
-            // Mensaje descriptivo
             let mensaje = "";
-            switch (estado) {
+            switch (labelEstado) {
                 case "Recibido":
-                    mensaje = "Tu pedido fue recibido correctamente y está en cola para ser preparado.";
+                    mensaje = "Tu pedido fue recibido correctamente y está en cola para ser preparado. " +
+                            "Puedes anularlo mientras siga en este estado.";
                     break;
                 case "En preparación":
-                    mensaje = "Nuestro equipo está preparando tu torta con todos los detalles que elegiste.";
+                    mensaje = "Estamos preparando tu pedido. En esta etapa ya no es posible anularlo.";
                     break;
                 case "En despacho":
-                    mensaje = "Tu pedido salió a reparto. Pronto debería llegar a la dirección indicada.";
+                    mensaje = "Tu pedido está en camino. Ya no es posible anularlo.";
                     break;
                 case "Entregado":
                     mensaje = "Tu pedido fue entregado. ¡Esperamos que lo disfrutes!";
                     break;
-                case "Anulación solicitada":
-                    mensaje = "Se ha recibido tu solicitud de anulación. El equipo revisará el caso y confirmará la cancelación.";
-                    break;
                 case "Anulada":
-                    mensaje = "La orden fue anulada. Si corresponde, la devolución o cancelación del pago será gestionada.";
+                    mensaje = "La orden fue anulada. Si corresponde, la devolución/cancelación del pago será gestionada.";
                     break;
                 default:
                     mensaje = "Pedido registrado. El estado detallado aún no está disponible.";
             }
 
             mensajeEstadoEl.textContent = mensaje;
+
+            configurarBotonAnular(pedidoBack);
         }
+
+        (async function init() {
+            const ordenLocal = leerOrdenLocal();
+
+            if (!ordenLocal || !ordenLocal.numero) {
+                numeroOrdenEl.textContent  = "Pedido: (sin pedido reciente)";
+                infoEntregaEl.textContent  = "No se encontró información de seguimiento.";
+                estadoActualEl.textContent = "Sin pedido";
+                estadoActualEl.className   = "badge bg-secondary";
+                mensajeEstadoEl.textContent =
+                    "Realiza una compra para poder visualizar el seguimiento.";
+                configurarBotonAnular(null);
+                return;
+            }
+
+            try {
+                const resp = await fetch(`${API_PEDIDOS}/listar`);
+                if (!resp.ok) throw new Error("No se pudo obtener pedidos");
+
+                const data = await resp.json();
+                const pedidos = Array.isArray(data.pedidos) ? data.pedidos : [];
+                const pedidoBack = pedidos.find(p => p.numero === ordenLocal.numero);
+
+                if (!pedidoBack) {
+                    mostrarPedido({
+                        numero: ordenLocal.numero,
+                        estado: "pagado",
+                        entrega: null,
+                        _id: null
+                    }, ordenLocal);
+                    configurarBotonAnular(null); 
+                    return;
+                }
+
+                mostrarPedido(pedidoBack, ordenLocal);
+
+            } catch (err) {
+                console.error(err);
+                mensajeEstadoEl.textContent =
+                    "Ocurrió un error al obtener el estado del pedido. Intenta más tarde.";
+                configurarBotonAnular(null);
+            }
+        })();
     </script>
+
+
 </body>
 </html>

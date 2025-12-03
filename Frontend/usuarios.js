@@ -1,16 +1,12 @@
-// ==== Claves de almacenamiento ====
-const CLAVE_USUARIOS        = "usuarios_dulce_tentacion";   // si lo usas para registrar usuarios
-const CLAVE_USUARIO_SESION  = "usuario_dulce_tentacion";    // <--- clave única de sesión
-
-// ==== Manejo de sesión ====
+const CLAVE_USUARIOS        = "usuarios_dulce_tentacion";   
+const CLAVE_USUARIO_SESION  = "usuario_dulce_tentacion";    
 
 // Guarda el usuario logueado
 function guardarSesion(usuario) {
     if (!usuario) return;
     localStorage.setItem(CLAVE_USUARIO_SESION, JSON.stringify(usuario));
 }
-
-// Obtiene el usuario actual desde localStorage
+// Obtiene el usuario logueado
 function obtenerUsuarioActual() {
     const json = localStorage.getItem(CLAVE_USUARIO_SESION);
     if (!json) return null;

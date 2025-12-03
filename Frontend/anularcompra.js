@@ -1,11 +1,11 @@
 const CLAVE_ORDEN     = "ultimo_pedido_dulce_tentacion";
-const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion"; // opcional
+const CLAVE_HISTORIAL = "historial_ventas_dulce_tentacion"; 
 const API_PEDIDOS     = "http://localhost:3900/api/pedidos";
 
 const formAnulacion  = document.getElementById("formAnulacion");
 const formContacto   = document.getElementById("formContacto");
 const modalAnulacion = new bootstrap.Modal(document.getElementById("modalAnulacion"));
-const alertaEstado   = document.querySelector(".alert"); // la de "Pedido recibido — ..."
+const alertaEstado   = document.querySelector(".alert"); 
 
 function leerOrdenActual() {
     try {
@@ -36,7 +36,7 @@ function formatearFecha(fechaIso) {
     return f.toLocaleString("es-CL");
 }
 
-// ================== CARGAR DATOS DE LA ORDEN ==================
+// CARGAR DATOS DE LA ORDEN 
 
 let ordenActual = leerOrdenActual();
 
@@ -58,8 +58,7 @@ if (ordenActual && alertaEstado) {
         "No se encontró un pedido reciente para anular.";
 }
 
-// ================== FORMULARIO DE ANULACIÓN ==================
-
+// FORMULARIO DE ANULACIÓN
 formAnulacion.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -95,21 +94,38 @@ formAnulacion.addEventListener("submit", async (e) => {
             console.warn("[AnularCompra] Pedido sin _id; se cancelará solo en localStorage.");
         }
 
-        // 1) Actualizar orden actual en memoria/localStorage
-        ordenActual.estado          = "Cancelado";
+        // 1) Actualizar orden actual en localStorage
+        const nuevoEstado = "Anulada"; 
+
+        ordenActual.estado          = nuevoEstado;
         ordenActual.motivoAnulacion = motivo;
         ordenActual.fechaAnulacion  = new Date().toISOString();
 
         localStorage.setItem(CLAVE_ORDEN, JSON.stringify(ordenActual));
 
-        // 2) Si usas historial en localStorage (opcional)
+        // 2) Actualizar también el historial en localStorage 
         const historial = leerHistorial();
-        const idx = historial.findIndex(o => o._id === ordenActual._id);
+        let idx = -1;
+
+        // Primero intentamos por _id 
+        if (ordenActual._id) {
+            idx = historial.findIndex(o => o._id === ordenActual._id);
+        }
+
+        // Si no hay _id o no lo encuentra se busca por número de pedido
+        if (idx === -1 && ordenActual.numero) {
+            idx = historial.findIndex(
+                (o) => (o.numero || "") === (ordenActual.numero || "")
+            );
+        }
+
         if (idx !== -1) {
-            historial[idx].estado          = "Cancelado";
+            historial[idx].estado          = nuevoEstado;
             historial[idx].motivoAnulacion = motivo;
             historial[idx].fechaAnulacion  = ordenActual.fechaAnulacion;
             guardarHistorial(historial);
+        } else {
+            console.warn("[AnularCompra] No se encontró la orden en historial para actualizar estado.");
         }
 
         // 3) Actualizar alerta de estado
@@ -121,12 +137,10 @@ formAnulacion.addEventListener("submit", async (e) => {
                     : "DT-XXXXXX");
 
             alertaEstado.textContent =
-                `Pedido ${numero} — Estado actual: Cancelado — ` +
-                formatearFecha(ordenActual.fechaAnulacion);
-
-            alertaEstado.classList.remove("alert-info");
-            alertaEstado.classList.add("alert-danger");
+                `Pedido ${numero} — Estado actual: ${nuevoEstado} — ` +
+                new Date(ordenActual.fechaAnulacion).toLocaleString("es-CL");
         }
+
 
         // 4) Reset form + mostrar modal
         formAnulacion.reset();
@@ -139,7 +153,7 @@ formAnulacion.addEventListener("submit", async (e) => {
     }
 });
 
-// ================== FORMULARIO DE CONTACTO ==================
+// FORMULARIO DE CONTACTO
 
 formContacto.addEventListener("submit", (e) => {
     e.preventDefault();

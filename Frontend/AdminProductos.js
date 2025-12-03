@@ -170,7 +170,6 @@ function prepararFormularioProducto() {
     });
 }
 
-// === EDITAR: abrir modal con datos existentes ===
 async function abrirEditarProducto(id) {
     try {
         const resp = await fetch(`${URL_API_PRODUCTOS}/obtener/${id}`);

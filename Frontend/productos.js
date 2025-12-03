@@ -1,8 +1,6 @@
-// productos.js  (catálogo del cliente, conectado al backend)
-
 const URL_API_PRODUCTOS = "http://localhost:3900/api/productos";
 
-// Helper global para formatear precios (lo usan catálogo y carrito)
+// Helper global para formatear precios 
 if (typeof formatearPrecio === "undefined") {
     function formatearPrecio(valor) {
         return "$" + (valor || 0).toLocaleString("es-CL");
@@ -13,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     cargarCatalogoCliente();
 });
 
-// Cargar productos del backend y mostrarlos al cliente
+// Cargar productos del backend 
 async function cargarCatalogoCliente() {
     const grid = document.getElementById("gridCatalogo");
     if (!grid) {

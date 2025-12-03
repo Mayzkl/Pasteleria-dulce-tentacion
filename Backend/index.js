@@ -26,7 +26,7 @@ app.use("/api/productos", rutasProductos);
 
 // Rutas de pedidos
 const rutasPedidos = require("./rutas/pedido");
-app.use("/api/pedidos", rutasPedidos);
+app.use("/api/pedidos", require("./rutas/pedido")); 
 
 // Ruta de prueba
 app.get("/", (req, res) => {

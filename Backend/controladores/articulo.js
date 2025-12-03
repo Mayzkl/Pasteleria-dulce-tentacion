@@ -1,4 +1,3 @@
-// Backend/controladores/articulo.js
 const Articulo = require("../modelos/Articulo");
 
 // Crear producto
@@ -123,8 +122,6 @@ const validar_disponibilidad = async (req, res) => {
             });
         }
 
-        // Aquí podrías consultar stock real por producto.
-        // Por ahora asumimos que todo está OK.
         return res.status(200).json({
             status: "success",
             disponible: true,

@@ -1,89 +1,117 @@
-document.addEventListener("DOMContentLoaded", () => {
+function obtenerUsuarioActual() {
+    const KEYS = ["usuario_dulce_tentacion", "usuario"]; 
 
-    const navbarContainer = document.getElementById("navbar-container");
-
-    // 👇 vamos a aceptar varias posibles keys
-    const USUARIO_KEYS = ["usuario", "usuario_dulce_tentacion"];
-
-    let usuario = null;
-    let usuarioKeyUsada = null;
-
-    for (const key of USUARIO_KEYS) {
-        const dataStr = localStorage.getItem(key);
-        if (dataStr) {
-            try {
-                usuario = JSON.parse(dataStr);
-                usuarioKeyUsada = key;
-                break;
-            } catch (e) {
-                console.error("Error parseando usuario desde localStorage (" + key + ")", e);
+    for (const key of KEYS) {
+        const str = localStorage.getItem(key);
+        if (!str) continue;
+        try {
+            const u = JSON.parse(str);
+            if (!u.rol) {
+                if (u.roles && u.roles.includes("admin")) {
+                    u.rol = "admin";
+                } else if ((u.nombre || "").toLowerCase() === "admin") {
+                    u.rol = "admin";
+                } else {
+                    u.rol = "cliente";
+                }
             }
+            return u;
+        } catch {
+            continue;
         }
     }
+    return null;
+}
 
-    // Si encontramos usuario pero sin rol, lo inferimos:
-    if (usuario && !usuario.rol) {
-        // aquí puedes poner la lógica que quieras
-        if (usuario.nombre && usuario.nombre.toLowerCase() === "admin") {
-            usuario.rol = "admin";
-        } else {
-            usuario.rol = "cliente";
-        }
-    }
-
+function construirNavbar(usuario) {
+    const navbarContainer = document.getElementById("navbar-container");
+    if (!navbarContainer) return;
 
     navbarContainer.innerHTML = `
-    <nav class="navbar navbar-expand-md navbar-light shadow-sm" style="background-color: #E5989B;">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="index.html" style="color:#4E342E;">Dulce Tentación</a>
+        <nav class="navbar navbar-expand-md navbar-light shadow-sm" style="background-color: #E5989B;">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="index.html" style="color:#4E342E;">Dulce Tentación</a>
 
-            <!-- Botón Hamburguesa -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
-            <!-- Opciones del Menú -->
-            <div class="collapse navbar-collapse justify-content-end" id="menuNav">
-                <ul class="navbar-nav" id="navItems" style="gap: .5rem;"></ul>
+                <div class="collapse navbar-collapse" id="menuNav">
+                    <ul class="navbar-nav ms-auto mb-2 mb-md-0" id="navItems"></ul>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
     `;
 
     const navItems = document.getElementById("navItems");
+    if (!navItems) return;
 
+    // MENÚ DE INVITADO
     if (!usuario) {
-        navItems.innerHTML += `
+        navItems.innerHTML = `
             <li class="nav-item"><a class="nav-link" href="catalogo.html">Catálogo</a></li>
             <li class="nav-item"><a class="nav-link" href="registro.html">Registro</a></li>
-            <li class="nav-item"><a class="nav-link" href="login.html">Iniciar sesión</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" id="btn-login">Iniciar sesión</a></li>
             <li class="nav-item"><a class="nav-link" href="carrito.html">Carrito</a></li>
+        `;
+        return;
+    }
+
+    if (usuario.rol === "admin") {
+        // MENÚ ADMIN
+        navItems.innerHTML = `
+            <li class="nav-item"><a class="nav-link" href="AdministracionDeProductos.html">Administrar productos</a></li>
+            <li class="nav-item"><a class="nav-link" href="ReporteVentas.html">Reporte de ventas</a></li>
+            <li class="nav-item"><a class="nav-link" href="Destacados.html">Destacados</a></li>
+            <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="#" id="logout">Cerrar sesión</a></li>
         `;
     } else {
-        navItems.innerHTML += `
-            <li class="nav-item"><span class="nav-link fw-bold" style="pointer-events:none;">Hola, ${usuario.nombre}</span></li>
+        // MENÚ CLIENTE
+        navItems.innerHTML = `
             <li class="nav-item"><a class="nav-link" href="catalogo.html">Catálogo</a></li>
-        `;
-
-        if (usuario.rol === "admin") {
-            navItems.innerHTML += `
-                <li class="nav-item"><a class="nav-link" href="AdministracionDeProductos.html">Administración</a></li>
-                <li class="nav-item"><a class="nav-link" href="ReporteVentas.html">Reporte ventas</a></li>
-            `;
-        } else {
-            navItems.innerHTML += `
-                <li class="nav-item"><a class="nav-link" href="Seguimiento.html">Seguimiento</a></li>
-            `;
-        }
-
-        navItems.innerHTML += `
-            <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="#" id="logout">Cerrar sesión</a></li>
+            <li class="nav-item"><a class="nav-link" href="Destacados.html">Destacados</a></li>
+            <li class="nav-item"><a class="nav-link" href="Seguimiento.html">Mis pedidos</a></li>
             <li class="nav-item"><a class="nav-link" href="carrito.html">Carrito</a></li>
+            <li class="nav-item"><a class="nav-link text-danger fw-semibold" href="#" id="logout">Cerrar sesión</a></li>
         `;
+    }
+}
 
-        document.getElementById("logout").addEventListener("click", () => {
-            ["usuario", "usuario_dulce_tentacion"].forEach(k => localStorage.removeItem(k));
-            window.location.href = "login.html";
+function configurarEventosNavbar(usuario) {
+    // Botón login (invitado)
+    const btnLogin = document.getElementById("btn-login");
+    if (btnLogin && window.keycloak) {
+        btnLogin.addEventListener("click", (e) => {
+            e.preventDefault();
+            const redirectUri = window.location.origin + "/Frontend/index.html";
+            window.keycloak.login({ redirectUri });
         });
     }
+
+    // Botón logout (logueado)
+    const btnLogout = document.getElementById("logout");
+    if (btnLogout) {
+        btnLogout.addEventListener("click", (e) => {
+            e.preventDefault();
+
+            ["usuario", "usuario_dulce_tentacion"].forEach((k) => localStorage.removeItem(k));
+
+            if (window.keycloak) {
+                const redirectUri = window.location.origin + "/Frontend/index.html";
+                window.keycloak.logout({ redirectUri });
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const esperaKeycloak = window.keycloakReady || Promise.resolve();
+
+    esperaKeycloak.finally(() => {
+        const usuario = obtenerUsuarioActual();
+        construirNavbar(usuario);
+        configurarEventosNavbar(usuario);
+    });
 });

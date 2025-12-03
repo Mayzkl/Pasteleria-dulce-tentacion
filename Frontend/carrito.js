@@ -1,4 +1,3 @@
-// carrito.js
 const CLAVE_CARRITO = "carrito_dulce_tentacion";
 
 function obtenerCarrito() {
